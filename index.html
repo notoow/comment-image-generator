@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="유튜브, 인스타그램, 틱톡, Reddit, 바이두 티에바 등 15개 플랫폼 스타일로 댓글 이미지를 만들고 투명 PNG로 저장하세요.">
+<meta name="theme-color" content="#ffffff">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>comment-image-generator — Notoow 댓글 이미지 생성기</title>
+<link rel="canonical" href="https://notoow.github.io/comment-image-generator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Notoow">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="Comment Image Generator — Notoow">
+<meta property="og:description" content="15개 플랫폼 스타일의 댓글 이미지. 실시간 편집과 투명 PNG 저장.">
+<meta property="og:url" content="https://notoow.github.io/comment-image-generator/">
+<meta property="og:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
+<meta property="og:image:width" content="1731">
+<meta property="og:image:height" content="909">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="Notoow Comment Image Generator — 댓글을 이미지로, 간편하게">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Comment Image Generator — Notoow">
+<meta name="twitter:description" content="15개 플랫폼 스타일의 댓글 이미지. 실시간 편집과 투명 PNG 저장.">
+<meta name="twitter:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script src="assets/vendor/lucide-1.17.0.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#editor-main">편집기로 이동</a>
+<div id="comment-image-generator" aria-label="Notoow comment-image-generator">
+  <section id="editor-main" aria-label="댓글 이미지 생성기">
+    <div class="cs-app" aria-label="Notoow 워크스페이스 디자인">
+      <header class="cs-top">
+        <a class="cs-wordmark" href="https://notoow.com/ko/" aria-label="Notoow 홈페이지">Notoow</a>
+        <a class="cs-software" href="https://notoow.com/ko/software/">모든 소프트웨어 ↗</a>
+      </header>
+      <div class="cs-project"><div><h1>comment-image-generator</h1><p>원하는 댓글을, 원하는 플랫폼의 이미지로.</p></div><span class="cs-badge">WEB TOOL</span></div>
+      <div class="cs-work">
+        <aside class="cs-controls" aria-label="댓글 편집 설정">
+          <div class="cs-control-nav">
+            <div class="cs-kicker">PLATFORM STYLE</div>
+            <button type="button" class="cs-platform-select cursor-interaction" data-open-platform aria-haspopup="dialog"><span class="cs-selected-platform"><span class="cs-platform-symbol" data-selected-symbol>TT</span><span data-selected-name>TikTok</span></span><i data-lucide="chevrons-up-down" aria-hidden="true"></i></button>
+            <div class="cs-platform-meta"><span data-selected-local>틱톡</span><span>15개 스타일</span></div>
+            <div class="cs-tabs" role="group" aria-label="설정 종류"><button type="button" class="cursor-interaction" data-panel-button="content" aria-pressed="true"><i data-lucide="text-cursor-input" aria-hidden="true"></i>내용</button><button type="button" class="cursor-interaction" data-panel-button="design" aria-pressed="false"><i data-lucide="sliders-horizontal" aria-hidden="true"></i>디자인</button></div>
+          </div>
+          <div class="cs-control-body">
+            <div class="cs-panel" data-panel="content">
+              <div class="cs-field" data-avatar-field><span class="cs-field-title">프로필</span><div class="cs-avatar-row"><canvas class="cs-avatar-mini" width="84" height="84" aria-label="선택한 프로필"></canvas><select data-key="avatarMode" aria-label="프로필 스타일"><option value="default">기본 프로필</option><option value="random">랜덤 프로필</option><option value="original">업로드한 사진</option><option value="mosaic">모자이크</option><option value="blur">블러</option></select><button type="button" class="cs-icon-button cursor-interaction" data-upload aria-label="프로필 사진 업로드"><i data-lucide="upload" aria-hidden="true"></i></button><input type="file" data-file accept="image/*" hidden></div></div>
+              <label class="cs-field"><span class="cs-field-title">아이디</span><span class="cs-inline-input"><input data-key="handle" value="@slow_morning" maxlength="60" autocomplete="off"><button type="button" class="cs-icon-button cursor-interaction" data-random aria-label="임의 아이디와 프로필 만들기"><i data-lucide="shuffle" aria-hidden="true"></i></button></span></label>
+              <label class="cs-field cs-text-field"><span class="cs-field-title">댓글 내용 <output data-count>0 / 4,000</output></span><textarea data-key="text" rows="4" maxlength="4000" spellcheck="false">설명이 정말 깔끔해서 끝까지 보게 되네요.
+다음 영상도 기대할게요!</textarea></label>
+              <label class="cs-field"><span class="cs-field-title">작성 시점</span><input data-key="date" value="9일 전" maxlength="30" autocomplete="off"></label>
+              <div class="cs-pair" data-reaction-fields><label class="cs-field"><span class="cs-field-title" data-likes-label>좋아요</span><input data-key="likes" type="number" value="24" min="0" max="99999"></label><label class="cs-field"><span class="cs-field-title">답글</span><input data-key="replies" type="number" value="3" min="0" max="99999"></label></div>
+              <label class="cs-field" data-board-field hidden><span class="cs-field-title">글 번호</span><input data-key="postNumber" type="number" value="123456" min="1" max="999999999"></label>
+            </div>
+            <div class="cs-panel" data-panel="design" hidden>
+              <div class="cs-field"><span class="cs-field-title">이미지 테마</span><div class="cs-segment" role="group" aria-label="이미지 테마"><button type="button" class="cursor-interaction" data-theme="light" aria-pressed="true"><i data-lucide="sun" aria-hidden="true"></i>밝게</button><button type="button" class="cursor-interaction" data-theme="dark" aria-pressed="false"><i data-lucide="moon" aria-hidden="true"></i>어둡게</button></div></div>
+              <div class="cs-field cs-opacity-field"><label class="cs-field"><span class="cs-field-title">배경 불투명도 <output data-opacity>100%</output></span><input data-key="opacity" type="range" min="0" max="100" value="100"></label><label class="cs-check">투명 배경<input data-transparent type="checkbox"></label></div>
+              <div class="cs-pair"><label class="cs-field"><span class="cs-field-title">이미지 너비</span><select data-key="width"><option value="640">640 px</option><option value="960" selected>960 px</option><option value="1280">1,280 px</option></select></label><label class="cs-field"><span class="cs-field-title">글자 크기</span><select data-key="font"><option value="20">20 px</option><option value="24" selected>24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label></div>
+              <div class="cs-spacing"><label class="cs-field"><span class="cs-field-title">위·아래 여백 <output data-padding>24 px</output></span><input data-key="padding" type="range" min="16" max="48" step="4" value="24"></label><span class="cs-help">위와 아래에 같은 여백을 적용합니다.</span><label class="cs-field"><span class="cs-field-title">좌·우 여백 <output data-horizontal>24 px</output></span><input data-key="horizontal" type="range" min="16" max="64" step="4" value="24"></label></div>
+            </div>
+          </div>
+        </aside>
+        <section class="cs-preview" aria-label="이미지 미리보기">
+          <div class="cs-preview-heading"><div><h2>미리보기</h2><span class="cs-live">실시간 반영</span></div><span class="cs-platform-name">TikTok</span></div>
+          <div class="cs-stage"><span class="cs-stage-label">CANVAS</span><div class="cs-image-wrap"><canvas class="cs-image" aria-label="편집한 댓글 이미지">댓글 이미지 미리보기</canvas></div><span class="cs-dimension"><span data-size>960 × 220 px</span></span></div>
+          <div class="cs-under-preview"><span><i data-lucide="scan" aria-hidden="true"></i>화면에 맞춤</span><button type="button" class="cs-guide-toggle cursor-interaction" data-guide aria-pressed="false"><i data-lucide="ruler" aria-hidden="true"></i>여백 확인</button></div>
+          <div class="cs-export"><div><h3>PNG · 고해상도 2×</h3><p data-export-size>1,920 × 440 px</p><button type="button" class="cs-download-fallback" data-show-export hidden>저장용 이미지 보기</button></div><button type="button" class="cs-download cursor-interaction" data-download><i data-lucide="download" aria-hidden="true"></i>PNG 다운로드</button></div>
+        </section>
+      </div>
+      <footer class="cs-bottom"><span class="cs-status" role="status" aria-live="polite"><i data-lucide="check" aria-hidden="true"></i><span data-status>내용을 바꾸면 미리보기에 바로 반영됩니다.</span></span><span>Made by Notoow</span></footer>
+      <dialog class="cs-save-dialog" aria-label="PNG 이미지 저장"><div class="cs-save-heading"><h2>PNG 이미지 저장</h2><button type="button" class="cs-icon-button cursor-interaction" data-close-save aria-label="저장 창 닫기"><i data-lucide="x" aria-hidden="true"></i></button></div><img data-save-image alt="저장할 댓글 PNG 이미지"><p>이미지를 우클릭하거나 길게 눌러 저장하세요.</p></dialog>
+      <dialog class="cs-platform-dialog" aria-label="플랫폼 스타일 선택"><div class="cs-save-heading"><h2>플랫폼 스타일 선택</h2><button type="button" class="cs-icon-button cursor-interaction" data-close-platform aria-label="플랫폼 선택 닫기"><i data-lucide="x" aria-hidden="true"></i></button></div><div class="cs-platform-groups" data-platform-groups></div></dialog>
+    </div>
+  </section>
+</div>
+</body>
+</html>
