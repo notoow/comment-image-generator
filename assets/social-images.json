@@ -1,0 +1,13 @@
+{
+  "policy": "Korean pages use ko; all other page languages use en. Titles and descriptions retain the page language.",
+  "ko": {
+    "width": 1731,
+    "height": 909,
+    "url": "https://notoow.github.io/comment-image-generator/assets/og-image.png"
+  },
+  "en": {
+    "width": 1731,
+    "height": 909,
+    "url": "https://notoow.github.io/comment-image-generator/assets/comment-image-generator-og-en-35dac73e158c.jpg"
+  }
+}
