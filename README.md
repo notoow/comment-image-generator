@@ -15,6 +15,12 @@ Notoow의 브라우저용 댓글 이미지 생성기입니다.
 - 이미지 너비·글자 크기·좌우 및 상하 여백 조절
 - 2배 해상도 PNG 다운로드와 저장용 이미지 보기
 
+댓글은 플랫폼별 DOM 템플릿으로 배치한 뒤 PNG로 변환합니다. YouTube와
+Instagram의 원본 SVG 및 측정값, DC Inside의 댓글 행 측정값을 반영했습니다.
+나머지 템플릿에는 캡처·직접 관찰을 바탕으로 한 재구성이 포함되어 있으며,
+모든 플랫폼·너비에서 원본과 픽셀 단위로 같다는 검증은 완료되지 않았습니다.
+참고 자료는 `docs/reference-audit.md`, `docs/image-reference-index.md`에 기록합니다.
+
 플랫폼을 참고한 편집용 스타일이며 실제 게시글 캡처나 해당 플랫폼과의 제휴를 뜻하지 않습니다. 댓글을 자동 작성하거나 사이트에 게시하지 않습니다.
 
 ## 실행
@@ -37,4 +43,6 @@ GitHub Pages: `main` 브랜치의 루트(`/`). `.nojekyll`로 정적 파일을 �
 
 - Lucide 1.17.0: `assets/vendor/lucide-LICENSE.txt`
 - Pretendard Variable: `assets/OFL.txt`
+- Roboto: `assets/Roboto-OFL.txt`
+- html-to-image 1.11.13: `assets/vendor/html-to-image-LICENSE.txt`
 - OG 이미지: OpenAI 내장 이미지 생성 도구로 제작. 프롬프트는 `docs/og-image-prompt.txt`.

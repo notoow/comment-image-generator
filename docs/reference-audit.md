@@ -28,6 +28,10 @@ These are not recorded as verified comment templates.
 
 Pixel-identical output across all widths and all 15 platforms is NOT yet verified.
 
+Image-search evidence and rejected references are tracked in
+[image-reference-index.md](image-reference-index.md). Screenshot estimates are not
+silently promoted to source-measured or pixel-matched templates.
+
 ## Additional direct inspection
 
 - DC Inside desktop comment row, public thread 475173: no profile avatar,
@@ -40,6 +44,29 @@ Pixel-identical output across all widths and all 15 platforms is NOT yet verifie
 
 ## Delivery status
 
-Work in progress on highst/native-comment-fidelity. Not deployed. Native PNG
-preview rendered for YouTube and Instagram, but the browser session failed during
-PNG-download verification. No end-to-end or pixel-equivalence completion claim.
+All 15 platforms now have individual DOM layouts; the shared canvas/Lucide
+comment renderer has been removed. The editor still uses Lucide for its controls.
+Only the YouTube/Instagram vectors above were copied from original source DOM.
+Other reaction outlines are reconstructions and have NOT passed pixel comparison.
+Facebook, Reddit and other screenshot-derived layouts remain subject to visual
+refinement; implementing a separate template does not mean original-site parity.
+
+Browser verification on 2026-11-04:
+
+- All 15: 960px width, 14px font, default multiline text; preview and generated
+  2× PNG data were saved and inspected as a contact sheet.
+- All 15: 240px width, long username, unbroken Latin text, Korean, explicit newline
+  and compound emoji. Fixed overflow in Instagram, Futaba and 5ch; DC changes to
+  two rows below a narrow-width threshold (a generator adaptation, not a measured
+  original mobile breakpoint).
+- All 15: 240px width, 32px font, 64px horizontal padding. No horizontal overflow
+  reported by the rendered DOM. Very narrow text naturally produces tall images.
+- Dark Facebook/Douyin PNGs and transparent YouTube/Futaba PNGs exported. Alpha
+  at transparent output corners was zero; opaque dark output corners were 255.
+- A 4,000-character stress case exceeding the canvas limit shows an actionable
+  message, disables download, and recovers when text/settings are changed.
+- Asynchronous preview ignores obsolete renders; exports use a state snapshot;
+  font embedding is cached; render/export failures restore controls.
+
+Verification artifacts are local, ignored under `.artifacts/native-proof/`.
+These are functional/layout checks, NOT a source-versus-output pixel diff.
