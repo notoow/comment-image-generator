@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="유튜브, 인스타그램, 틱톡, Reddit, 바이두 티에바 등 15개 플랫폼 스타일로 댓글 이미지를 만들고 투명 PNG로 저장하세요.">
 <meta name="theme-color" content="#ffffff">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>comment-image-generator — Notoow 댓글 이미지 생성기</title>
 <link rel="canonical" href="https://notoow.github.io/comment-image-generator/">
 <meta property="og:type" content="website">
@@ -27,6 +27,8 @@
 <link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 <script src="assets/vendor/lucide-1.17.0.js" defer></script>
+<script src="assets/vendor/html-to-image-1.11.13.js" defer></script>
+<script src="native-templates.js" defer></script>
 <script src="app.js" defer></script>
   <meta property="og:image:secure_url" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 </head>
@@ -61,7 +63,7 @@
             <div class="cs-panel" data-panel="design" hidden>
               <div class="cs-field"><span class="cs-field-title">이미지 테마</span><div class="cs-segment" role="group" aria-label="이미지 테마"><button type="button" class="cursor-interaction" data-theme="light" aria-pressed="true"><i data-lucide="sun" aria-hidden="true"></i>밝게</button><button type="button" class="cursor-interaction" data-theme="dark" aria-pressed="false"><i data-lucide="moon" aria-hidden="true"></i>어둡게</button></div></div>
               <div class="cs-field cs-opacity-field"><label class="cs-field"><span class="cs-field-title">배경 불투명도 <output data-opacity>100%</output></span><input data-key="opacity" type="range" min="0" max="100" value="100"></label><label class="cs-check">투명 배경<input data-transparent type="checkbox"></label></div>
-              <div class="cs-pair"><label class="cs-field"><span class="cs-field-title">이미지 너비</span><select data-key="width"><option value="640">640 px</option><option value="960" selected>960 px</option><option value="1280">1,280 px</option></select></label><label class="cs-field"><span class="cs-field-title">글자 크기</span><select data-key="font"><option value="20">20 px</option><option value="24" selected>24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label></div>
+              <div class="cs-pair"><label class="cs-field"><span class="cs-field-title">이미지 너비</span><input data-key="width" type="number" min="240" max="1600" step="1" value="960"></label><label class="cs-field"><span class="cs-field-title">글자 크기</span><select data-key="font"><option value="12">12 px</option><option value="14" selected>14 px</option><option value="16">16 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label></div>
               <div class="cs-spacing"><label class="cs-field"><span class="cs-field-title">위·아래 여백 <output data-padding>24 px</output></span><input data-key="padding" type="range" min="16" max="48" step="4" value="24"></label><span class="cs-help">위와 아래에 같은 여백을 적용합니다.</span><label class="cs-field"><span class="cs-field-title">좌·우 여백 <output data-horizontal>24 px</output></span><input data-key="horizontal" type="range" min="16" max="64" step="4" value="24"></label></div>
             </div>
           </div>

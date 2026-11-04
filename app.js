@@ -35,15 +35,15 @@
     }
     section.append(grid);groups.append(section);
   }
-  function savedFor(index) { try { return JSON.parse(localStorage.getItem('notoow.comment-image-generator.v1'))?.concepts?.[index] || {}; } catch { return {}; } }
+  function savedFor(index) { try { return JSON.parse(localStorage.getItem('notoow.comment-image-generator.v2'))?.concepts?.[index] || {}; } catch { return {}; } }
   function persist() {
     const concepts = sessions.map(({state}) => ({...state}));
-    try { localStorage.setItem('notoow.comment-image-generator.v1', JSON.stringify({concepts})); } catch {}
+    try { localStorage.setItem('notoow.comment-image-generator.v2', JSON.stringify({concepts})); } catch {}
   }
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,font:24,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,font:14,padding:24,horizontal:24,guides:false};
     const numeric = new Set(['likes','replies','postNumber','opacity','width','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
@@ -62,8 +62,8 @@
       if (!platforms.some(p=>p.id===state.platform)) state.platform = 'tiktok';
       if (!['light','dark'].includes(state.theme)) state.theme = 'light';
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
-      if (![640,960,1280].includes(state.width)) state.width = 960;
-      if (![20,24,28,32].includes(state.font)) state.font = 24;
+      state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
+      if (![12,14,16,20,24,28,32].includes(state.font)) state.font = 14;
       state.opacity = Math.max(0,Math.min(100,state.opacity));
       state.padding = Math.max(16,Math.min(48,state.padding));
       state.horizontal = Math.max(16,Math.min(64,state.horizontal));
@@ -115,7 +115,8 @@
       for(const el of svg.children){g.beginPath();const a=n=>Number(el.getAttribute(n));if(el.tagName.toLowerCase()==='path') g.stroke(new Path2D(el.getAttribute('d')));else if(el.tagName.toLowerCase()==='circle'){g.arc(a('cx'),a('cy'),a('r'),0,Math.PI*2);g.stroke();}else if(el.tagName.toLowerCase()==='line'){g.moveTo(a('x1'),a('y1'));g.lineTo(a('x2'),a('y2'));g.stroke();}else if(el.tagName.toLowerCase()==='polyline'){const points=el.getAttribute('points').trim().split(/[ ,]+/).map(Number);g.moveTo(points[0],points[1]);for(let p=2;p<points.length;p+=2)g.lineTo(points[p],points[p+1]);g.stroke();}else if(el.tagName.toLowerCase()==='rect'){g.roundRect(a('x'),a('y'),a('width'),a('height'),a('rx'));g.stroke();}}
       g.restore();
     }
-    function paint(target,guides) {
+    async function paint(target,guides) {
+      const native=await CommentNative.render({state:{...state},avatar:avatarSource(),target,guides});if(native)return native;
       const w=state.width,p=8,hp=state.horizontal,kind=state.platform;
       const board=['futaba','fivech'].includes(kind),heartSide=['tiktok','douyin','xiaohongshu'].includes(kind);
       const avatarSize=kind==='xiaohongshu'?40:48;
@@ -195,11 +196,13 @@
       if(guides){out.scale(2,2);out.fillStyle=dark?'#ffffff18':'#0000000c';out.fillRect(0,0,w,pad);out.fillRect(0,h-pad,w,pad);out.strokeStyle=dark?'#bbb':'#666';out.setLineDash([6,5]);out.beginPath();out.moveTo(0,pad);out.lineTo(w,pad);out.moveTo(0,h-pad);out.lineTo(w,h-pad);out.stroke();out.font=`12px ${fontFamily}`;out.textBaseline='top';out.fillStyle=dark?'#ddd':'#444';out.fillText(`${pad} px`,w-60,5);out.fillText(`${pad} px`,w-60,h-pad+5);}
       return {w,h};
     }
-    function render(){
+    let renderVersion=0;
+    async function render(){
+      const version=++renderVersion;canvas.setAttribute("aria-busy","true");
       app.dataset.imageTheme=state.theme;
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
-      find('[data-avatar-field]').hidden=board;find('[data-board-field]').hidden=!board;find('[data-reaction-fields]').hidden=state.platform==='fivech';
+      find('[data-avatar-field]').hidden=board||state.platform==='dc';find('[data-board-field]').hidden=!board;find('[data-reaction-fields]').hidden=['fivech','dc'].includes(state.platform);
       find('[data-likes-label]').textContent=state.platform==='reddit'?'투표 수':state.platform==='futaba'?'そうだね':state.platform==='dc'?'추천':'좋아요';
       all('[data-platform]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.platform===state.platform)));
       all('[data-theme]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===state.theme)));
@@ -209,8 +212,8 @@
       find('[data-transparent]').checked=state.opacity===0;
       find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;
       find('[data-opacity]').textContent=state.opacity+'%';find('[data-padding]').textContent=state.padding+' px';find('[data-horizontal]').textContent=state.horizontal+' px';
-      find('.cs-platform-name').textContent=names[state.platform];
-      const {w,h}=paint(canvas,state.guides);
+      find('.cs-platform-name').textContent=names[state.platform];find('[data-status]').textContent=['youtube','instagram','dc'].includes(state.platform)?'실제 데스크톱 댓글의 측정값 반영 · 전체 화면 일치 검증 진행 중':'이 플랫폼은 원본 댓글과의 일치 검증이 아직 끝나지 않았습니다.';
+      const temp=document.createElement('canvas');const {w,h}=await paint(temp,state.guides);if(version!==renderVersion)return;canvas.width=temp.width;canvas.height=temp.height;canvas.getContext('2d').drawImage(temp,0,0);canvas.setAttribute("aria-busy","false");
       find('[data-size]').textContent=`${w.toLocaleString()} × ${h.toLocaleString()} px`;
       find('[data-export-size]').textContent=`${(w*2).toLocaleString()} × ${(h*2).toLocaleString()} px${state.opacity===0?' · 투명 배경':''}`;
       find('[data-download]').disabled=!state.text.trim();
@@ -233,8 +236,8 @@
       const file=e.target.files[0];if(!file)return;const version=++uploadVersion;const url=URL.createObjectURL(file);
       try{const img=new Image();img.src=url;await img.decode();if(version!==uploadVersion)return;uploaded=img;state.avatarMode='original';find('[data-key="avatarMode"]').value='original';render();find('[data-status]').textContent='프로필 사진을 적용했습니다.';persist();}catch{find('[data-status]').textContent='사진을 읽을 수 없습니다. 다른 이미지로 시도해주세요.';}finally{URL.revokeObjectURL(url);}
     });
-    find('[data-download]').addEventListener('click',()=>{
-      if(!state.text.trim())return;paint(exportCanvas,false);
+    find('[data-download]').addEventListener('click',async()=>{
+      if(!state.text.trim())return;await paint(exportCanvas,false);
       find('[data-save-image]').src=exportCanvas.toDataURL('image/png');find('[data-show-export]').hidden=false;
       exportCanvas.toBlob(blob=>{
         if(!blob){find('.cs-save-dialog').showModal();return;}
