@@ -22,7 +22,7 @@
     {id:'dc',name:'DC Inside',local:'디시인사이드',symbol:'dc',group:'한국'}
   ];
   const names = Object.fromEntries(platforms.map(p=>[p.id,p.name]));
-  const palette = ['#555555','#757575','#383838','#929292','#626262'];
+  const palette = ['#5f6dc5','#005c98','#689f38','#00897b','#d84315','#c62828','#ad1457','#555555'];
   const groups = first.querySelector('[data-platform-groups]');
   for (const group of ['글로벌','중국','일본','한국']) {
     const section=document.createElement('section');section.className='cs-platform-group';
@@ -43,7 +43,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
     const numeric = new Set(['likes','replies','postNumber','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
@@ -58,6 +58,10 @@
       }
       if (!platforms.some(p=>p.id===state.platform)) state.platform = 'tiktok';
       if (!CommentRandom.styles.includes(state.nameStyle)) state.nameStyle = 'phrase';
+      if (!/^#[0-9a-f]{6}$/i.test(state.avatarColor)) state.avatarColor='#5f6dc5';
+      if (!['default','random','initials','original','mosaic','blur'].includes(state.avatarMode)) state.avatarMode='default';
+      if (!['collapsed','expanded'].includes(state.youtubeMode)) state.youtubeMode='collapsed';
+      state.avatarText=Array.from(state.avatarText).slice(0,3).join('');
       if (!['light','dark'].includes(state.theme)) state.theme = 'light';
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
       state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
@@ -80,9 +84,13 @@
         g.drawImage(uploaded,(uploaded.naturalWidth-side)/2,(uploaded.naturalHeight-side)/2,side,side,0,0,100,100);
       } else {
         const seed=state.avatarSeed;
-        g.fillStyle=palette[Math.abs(seed)%palette.length];g.fillRect(0,0,100,100);
-        g.fillStyle='#eeeeee';
-        if(state.avatarMode==='default'||state.avatarMode==='original') {
+        g.fillStyle=state.avatarColor;g.fillRect(0,0,100,100);
+        const rgb=[1,3,5].map(i=>parseInt(state.avatarColor.slice(i,i+2),16));
+        const light=rgb[0]*.299+rgb[1]*.587+rgb[2]*.114>170;
+        g.fillStyle=light?'rgba(0,0,0,.35)':'rgba(255,255,255,.6)';
+        if(state.avatarMode==='initials'){
+          const label=state.avatarText||'KS';g.fillStyle=light?'#222':'#fff';g.font=`400 ${Array.from(label).length===1?56:Array.from(label).length===2?44:34}px Arial,"Malgun Gothic",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(label,50,54,90);
+        }else if(state.avatarMode==='default'||state.avatarMode==='original') {
           g.beginPath();g.arc(50,37,17,0,Math.PI*2);g.fill();g.beginPath();g.ellipse(50,91,35,30,0,0,Math.PI*2);g.fill();
         } else {
           for(let y=0;y<5;y++)for(let x=0;x<3;x++)if((Math.imul(seed+73, (y*3+x+1)*31)>>>((x+y)%12))&1){g.fillRect(x*20,y*20,20,20);g.fillRect((4-x)*20,y*20,20,20);}
@@ -103,6 +111,25 @@
     }
     let renderVersion=0;
     const liveHost=find('.cs-live-comment');
+    const commentMenu=find('.cs-comment-menu');
+    function closeCommentMenu(){commentMenu.hidden=true;find('[data-comment-menu]')?.setAttribute('aria-expanded','false');}
+    find('.cs-resize-frame').addEventListener('click',event=>{
+      const toggle=event.target.closest('[data-yt-toggle]');
+      if(toggle){state.youtubeMode=state.youtubeMode==='expanded'?'collapsed':'expanded';find('[data-key="youtubeMode"]').value=state.youtubeMode;render();persist();return;}
+      const trigger=event.target.closest('[data-comment-menu]');if(!trigger)return;
+      const opening=commentMenu.hidden;closeCommentMenu();if(!opening)return;
+      const rect=trigger.getBoundingClientRect(),frame=find('.cs-resize-frame').getBoundingClientRect();
+      commentMenu.style.top=rect.bottom-frame.top+4+'px';commentMenu.style.right=Math.max(0,frame.right-rect.right)+'px';commentMenu.hidden=false;trigger.setAttribute('aria-expanded','true');commentMenu.querySelector('button').focus();
+    });
+    document.addEventListener('pointerdown',event=>{if(!commentMenu.contains(event.target)&&!event.target.closest('[data-comment-menu]'))closeCommentMenu();});
+    commentMenu.addEventListener('keydown',event=>{if(event.key==='Escape'){closeCommentMenu();find('[data-comment-menu]')?.focus();}});
+    find('[data-comment-edit]').addEventListener('click',()=>{state.panel='content';render();persist();find('[data-key="text"]').focus();});
+    find('[data-comment-copy]').addEventListener('click',async()=>{closeCommentMenu();try{await navigator.clipboard.writeText(state.text);find('[data-status]').textContent='댓글 텍스트를 복사했습니다.';}catch{find('[data-status]').textContent='댓글 입력란에서 텍스트를 선택해 복사해 주세요.';}});
+    function showYouTubePreview(){
+      liveHost.hidden=false;canvas.hidden=true;
+      const size=CommentNative.preview({state:{...state},avatar:avatarSource(),host:liveHost,interactive:true});
+      resizer.update(size,{live:true});find('[data-comment-menu]').setAttribute('aria-expanded',String(!commentMenu.hidden));sizeLabels(size);return size;
+    }
     function sizeLabels({w,h}){
       find('[data-size]').textContent=`${w.toLocaleString()} × ${h.toLocaleString()} px`;
       find('[data-export-size]').textContent=`${(w*2).toLocaleString()} × ${(h*2).toLocaleString()} px${state.opacity===0?' · 투명 배경':''}`;
@@ -126,9 +153,14 @@
     find('[data-auto-height]').addEventListener('click',()=>{state.height=0;find('[data-key="height"]').value='';render();persist();});
     async function render(){
       const version=++renderVersion;canvas.setAttribute("aria-busy","true");
-      app.dataset.imageTheme=state.theme;
+      closeCommentMenu();app.dataset.imageTheme=state.theme;
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
+      find('[data-youtube-only]').hidden=state.platform!=='youtube';
+      find('[data-initials-field]').hidden=state.avatarMode!=='initials';
+      const photo=!!uploaded&&['original','mosaic','blur'].includes(state.avatarMode);
+      find('[data-key="avatarColor"]').disabled=photo;find('[data-avatar-color-value]').textContent=state.avatarColor.toUpperCase();
+      all('[data-avatar-color]').forEach(b=>{b.disabled=photo;b.setAttribute('aria-pressed',String(b.dataset.avatarColor.toLowerCase()===state.avatarColor.toLowerCase()));});
       find('[data-avatar-field]').hidden=board||state.platform==='dc';find('[data-board-field]').hidden=!board&&state.platform!=='tieba';find('[data-reaction-fields]').hidden=['fivech','dc'].includes(state.platform);
       find('[data-likes-field]').hidden=state.platform==='tieba';find('[data-replies-field]').hidden=state.platform==='futaba';
       find('[data-likes-label]').textContent=state.platform==='reddit'?'투표 수':state.platform==='futaba'?'そうだね':state.platform==='dc'?'추천':'좋아요';
@@ -144,14 +176,15 @@
       find('[data-download]').disabled=true;
       let rendered=false;
       try {
+        if(state.platform==='youtube')showYouTubePreview();
         const temp=document.createElement('canvas');const size=await paint(temp,state.guides);const {w,h,overflow}=size;
         if(version!==renderVersion)return;
         rendered=true;canvas.dataset.layoutOverflow=String(overflow);canvas.width=temp.width;canvas.height=temp.height;canvas.getContext('2d').drawImage(temp,0,0);
         if(state.height){state.height=h;find('[data-key="height"]').value=h;persist();}
-        sizeLabels(size);resizer.update(size);
+        sizeLabels(size);if(state.platform==='youtube')showYouTubePreview();else resizer.update(size);
       } catch(error) {
         if(version===renderVersion){find('[data-status]').textContent=error.userMessage||'이미지를 만들지 못했습니다. 설정을 바꾸거나 새로고침해 주세요.';canvas.width=0;canvas.height=0;find('[data-size]').textContent='설정을 조절해 주세요.';find('[data-export-size]').textContent='PNG 출력 범위 초과';}
-        liveHost.hidden=true;liveHost.replaceChildren();canvas.hidden=false;console.error('Comment render failed',error);
+        if(version===renderVersion){liveHost.hidden=true;liveHost.replaceChildren();canvas.hidden=false;}console.error('Comment render failed',error);
       } finally {
         if(version===renderVersion){canvas.setAttribute('aria-busy','false');find('[data-download]').disabled=!rendered||!state.text.trim();}
       }
@@ -174,8 +207,9 @@
       state.handle=CommentRandom.name(state.nameStyle,state.handle);
       find('[data-key="handle"]').value=state.handle;render();persist();
     });
+    all('[data-avatar-color]').forEach(button=>button.addEventListener('click',()=>{state.avatarColor=button.dataset.avatarColor;find('[data-key="avatarColor"]').value=state.avatarColor;render();persist();}));
     find('[data-random-avatar]').addEventListener('click',()=>{
-      uploadVersion++;state.avatarSeed=CommentRandom.avatarSeed(state.avatarSeed);state.avatarMode='random';
+      uploadVersion++;state.avatarSeed=CommentRandom.avatarSeed(state.avatarSeed);state.avatarMode='random';state.avatarColor=palette[state.avatarSeed%palette.length];find('[data-key="avatarColor"]').value=state.avatarColor;
       find('[data-key="avatarMode"]').value=state.avatarMode;render();persist();
     });
     find('[data-upload]').addEventListener('click',()=>find('[data-file]').click());

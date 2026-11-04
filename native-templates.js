@@ -5,10 +5,11 @@
     heart:'M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z',
     up:'m7.748.854.779.13a3 3 0 012.44 3.588L10.5 6.75h3.046a2.748 2.748 0 012.204 4.387l.015.066A2.862 2.862 0 0115 13.874v.033c0 .227-.037.452-.109.668l-.08.21a2.815 2.815 0 01-2.59 1.715H9.516l-.294-.005a9.002 9.002 0 01-3.918-1.041l-.256-.142-.204-.116a1.502 1.502 0 00-.55-.186L4.102 15H2.625l-.116-.006a1.126 1.126 0 01-1.003-1.005l-.006-.114v-4.5c0-.62.504-1.124 1.125-1.124h1.342a.75.75 0 00.66-.395l.048-.107 2.24-6.403a.75.75 0 01.833-.491ZM6.09 8.243A2.25 2.25 0 013.967 9.75H3v3.749h1.1a3 3 0 011.49.395l.202.116a7.503 7.503 0 003.724.99h2.703c.566 0 1.07-.363 1.248-.9a.61.61 0 00.032-.193v-.655l.44-.439a1.36 1.36 0 00.363-1.272l-.014-.065-.157-.675.413-.556a1.248 1.248 0 00-.999-1.995H10.5a1.501 1.501 0 01-1.467-1.815L9.5 4.257a1.5 1.5 0 00-1.22-1.794l-.157-.026L6.09 8.243Z',
     down:'m8.482 1.5.294.005a9.01 9.01 0 013.918 1.04l.257.143.203.116c.17.097.357.16.55.185l.194.012h1.477l.115.006c.53.054.95.475 1.004 1.005l.006.114v4.499c0 .621-.504 1.125-1.125 1.125h-1.343a.75.75 0 00-.66.395l-.048.107-2.24 6.402a.75.75 0 01-.832.491l-.78-.13a3 3 0 01-2.439-3.587L7.5 11.25H4.454a2.749 2.749 0 01-2.683-2.151 2.762 2.762 0 01.479-2.237l-.016-.065A2.862 2.862 0 013 4.125v-.032c0-.227.037-.453.108-.668l.08-.211A2.816 2.816 0 015.78 1.5h2.703ZM5.78 3c-.566 0-1.069.362-1.248.9a.613.613 0 00-.031.193v.654l-.44.44c-.333.332-.47.813-.364 1.271l.015.065.157.675-.413.557a1.248 1.248 0 00.999 1.995H7.5a1.501 1.501 0 011.467 1.815L8.5 13.742a1.5 1.5 0 001.22 1.794l.157.027 2.031-5.806a2.25 2.25 0 012.124-1.507H15V4.501h-1.102a3.001 3.001 0 01-1.489-.396l-.202-.116A7.504 7.504 0 008.482 3H5.78Z',
+    kebab:'M12 4a2 2 0 100 4 2 2 0 000-4Zm0 6a2 2 0 100 4 2 2 0 000-4Zm0 6a2 2 0 100 4 2 2 0 000-4Z',
     chevron:'M18.707 8.793a1 1 0 00-1.414 0L12 14.086 6.707 8.793a1 1 0 10-1.414 1.414L12 16.914l6.707-6.707a1 1 0 000-1.414Z'
   };
   const e=(tag,style,text)=>{const n=document.createElement(tag);Object.assign(n.style,style);if(text!==undefined)n.textContent=text;return n;};
-  function icon(name,size){const n=document.createElementNS('http://www.w3.org/2000/svg','svg');n.setAttribute('viewBox',name==='up'||name==='down'?'0 0 18 18':'0 0 24 24');n.setAttribute('width',size);n.setAttribute('height',size);n.style.cssText='display:block;flex:none;fill:currentColor';const p=document.createElementNS(n.namespaceURI,'path');p.setAttribute('d',paths[name]);n.append(p);return n;}
+  function icon(name,size){const n=document.createElementNS('http://www.w3.org/2000/svg','svg');n.setAttribute('viewBox',name==='up'||name==='down'?'0 0 18 18':'0 0 24 24');n.setAttribute('width',size);n.setAttribute('height',size);n.style.cssText='display:block;flex:none;fill:currentColor';n.style.width=size+'px';n.style.height=size+'px';const p=document.createElementNS(n.namespaceURI,'path');p.setAttribute('d',paths[name]);n.append(p);return n;}
   let fontCSS;
   function embeddedFonts(node){
     // The library otherwise fetches and embeds every font again for every keystroke.
@@ -34,7 +35,7 @@
   function lineIcon(name,size=18,stroke=1.6){
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     for(const [key,value] of Object.entries({viewBox:'0 0 24 24',width:size,height:size,fill:'none',stroke:'currentColor','stroke-width':stroke,'stroke-linecap':'round','stroke-linejoin':'round'}))svg.setAttribute(key,value);
-    svg.style.cssText='display:block;flex:none';
+    svg.style.cssText='display:block;flex:none';svg.style.width=size+'px';svg.style.height=size+'px';svg.style.strokeWidth=stroke;
     const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',outlines[name]);svg.append(path);return svg;
   }
   function setup(c,{avatar=40,gap=12,body=14,line=20,font='Arial,"Microsoft YaHei",sans-serif'}={}){
@@ -181,9 +182,12 @@
       row.append(e('div',{fontSize:px(12),color:dark?'#aaa':'#999',whiteSpace:'nowrap',paddingTop:px(1)},state.date));
       if(state.width-2*state.horizontal<520*scale){row.style.gridTemplateColumns='minmax(0,1fr) auto';row.style.columnGap=px(12);row.style.rowGap=px(6);text.style.gridColumn='1 / -1';text.style.gridRow='2';row.lastElementChild.style.gridColumn='2';row.lastElementChild.style.gridRow='1';}
     }else if(yt){
-      const header=e('div',{display:'flex',alignItems:'baseline',gap:px(4),minHeight:px(18),flexWrap:'wrap',overflowWrap:'anywhere'});
+      row.style.position='relative';
+      const menu=e('button',{position:'absolute',right:'0',top:px(-12),width:px(40),height:px(40),minHeight:'0',minWidth:'0',padding:px(8),display:'flex',alignItems:'center',justifyContent:'center',border:'0',borderRadius:'50%',background:'transparent',color:ink});menu.type='button';menu.dataset.commentMenu='';menu.setAttribute('aria-label','댓글 작업 메뉴');menu.setAttribute('aria-haspopup','menu');menu.setAttribute('aria-expanded','false');menu.append(icon('kebab',24*scale));row.append(menu);
+      const header=e('div',{display:'flex',alignItems:'baseline',gap:px(4),minHeight:px(18),flexWrap:'wrap',overflowWrap:'anywhere',paddingRight:px(32)});
       header.append(e('span',{fontSize:px(12),fontWeight:'500',lineHeight:px(18)},'@'+handle),e('span',{fontSize:px(12),lineHeight:px(18),color:muted},state.date));content.append(header);
       const body=e('div',{marginTop:px(4),lineHeight:px(20)});body.append(text);content.append(body);
+      body.dataset.ytBody='';const toggle=e('button',{display:'block',marginTop:px(4),minHeight:'0',padding:'0',border:'0',borderRadius:'0',background:'transparent',fontFamily:'inherit',fontSize:px(14),lineHeight:px(20),fontWeight:'500',textAlign:'left',whiteSpace:'normal',maxWidth:'100%',overflowWrap:'anywhere',color:muted},state.youtubeMode==='expanded'?'간략히':'자세히 알아보기');toggle.type='button';toggle.dataset.ytToggle='';toggle.setAttribute('aria-expanded',String(state.youtubeMode==='expanded'));content.append(toggle);
       const actions=e('div',{display:'flex',alignItems:'center',minHeight:px(36),flexWrap:'wrap',rowGap:px(8),marginTop:px(4),fontSize:px(12),lineHeight:px(18)});
       actions.append(icon('up',18*scale),e('span',{marginLeft:px(6),marginRight:px(8)},String(state.likes)));
       const dislike=e('span',{width:px(32),display:'flex',justifyContent:'center'});dislike.append(icon('down',18*scale));actions.append(dislike,e('span',{padding:'0 '+px(12),fontWeight:'500'},'답글'));content.append(actions);
@@ -203,6 +207,8 @@
     return {root,muted};
   }
   function measure(root,state){
+    const body=root.querySelector('[data-yt-body]');
+    if(body){const limit=80*state.font/14;const long=body.scrollHeight>limit+.5;const toggle=root.querySelector('[data-yt-toggle]');toggle.hidden=!long;toggle.style.display=long?'block':'none';if(long&&state.youtubeMode!=='expanded'){Object.assign(body.style,{display:'-webkit-box',webkitBoxOrient:'vertical',webkitLineClamp:'4',overflow:'hidden',maxHeight:limit+'px'});}}
     // Read layout pixels: a live preview's ancestor is scaled to fit the screen.
     // getBoundingClientRect() would report screen pixels and shrink saved heights.
     const minH=Math.ceil(parseFloat(getComputedStyle(root).height));
@@ -214,9 +220,9 @@
     }
     return {w:state.width,h,minH,overflow:root.scrollWidth>root.clientWidth};
   }
-  function preview({state,avatar,host}){
+  function preview({state,avatar,host,interactive=false}){
     const {root}=build({state,avatar});root.style.position='relative';root.style.left='0';root.style.top='0';
-    host.replaceChildren(root);
+    if(interactive)root.removeAttribute('aria-hidden');host.dataset.interactive=String(interactive);host.replaceChildren(root);
     return measure(root,state);
   }
   async function render({state,avatar,target,guides}){

@@ -17,9 +17,9 @@
       host.style.width=metrics.w+'px';host.style.transform=`scale(${scale})`;
       tooltip.textContent=`${metrics.w} × ${metrics.h} px`;
     }
-    function update(size){
+    function update(size,{live=false}={}){
       metrics=size;frame.style.transform='';frame.dataset.resizing='false';
-      host.hidden=true;host.replaceChildren();canvas.hidden=false;fit();
+      host.hidden=!live;if(!live)host.replaceChildren();canvas.hidden=live;fit();
     }
     function apply(){
       raf=0;if(!drag||!lastMove)return;

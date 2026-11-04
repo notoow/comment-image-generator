@@ -17,7 +17,7 @@
 #comment-image-generator .cs-app h2{font-size:14px;font-weight:650;letter-spacing:-.25px}
 #comment-image-generator .cs-app h3{font-size:13px;font-weight:600}
 #comment-image-generator .cs-app svg{width:16px;height:16px;flex:none;stroke-width:1.7}
-#comment-image-generator .cs-app input:not([type=range]):not([type=checkbox]):not([type=file]),#comment-image-generator .cs-app select,#comment-image-generator .cs-app textarea{width:100%;min-width:0;border:1px solid var(--cs-line);border-radius:4px;background:var(--cs-bg);padding:10px 11px;line-height:1.5}
+#comment-image-generator .cs-app input:not([type=range]):not([type=checkbox]):not([type=file]):not([type=color]),#comment-image-generator .cs-app select,#comment-image-generator .cs-app textarea{width:100%;min-width:0;border:1px solid var(--cs-line);border-radius:4px;background:var(--cs-bg);padding:10px 11px;line-height:1.5}
 #comment-image-generator .cs-app textarea{resize:vertical;min-height:140px;display:block}
 #comment-image-generator .cs-app input[type=range]{width:100%;margin:0;accent-color:var(--cs-accent)}
 #comment-image-generator .cs-app input[type=checkbox]{accent-color:var(--cs-accent);width:16px;height:16px;margin:0}
@@ -92,6 +92,24 @@
 #comment-image-generator .cs-resize-frame .cs-image-wrap{height:100%;position:relative}
 #comment-image-generator .cs-resize-frame:after{content:"";position:absolute;inset:-1px;border:1px solid #171717;box-shadow:inset 0 0 0 1px #fff8;pointer-events:none;opacity:0}
 #comment-image-generator .cs-live-comment{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+#comment-image-generator .cs-live-comment[data-interactive=true]{pointer-events:auto}
+#comment-image-generator .cs-preview-tools{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:flex-end}
+#comment-image-generator .cs-canvas-theme{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--cs-muted)}
+#comment-image-generator .cs-canvas-theme .cs-segment{display:flex;padding:3px;gap:3px;border:1px solid var(--cs-line);border-radius:6px;background:var(--cs-bg)}
+#comment-image-generator .cs-canvas-theme .cs-segment button{min-height:30px;padding:4px 8px}
+#comment-image-generator .cs-preview-heading{flex-wrap:wrap}
+#comment-image-generator .cs-color-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--cs-muted)}
+#comment-image-generator .cs-avatar-colors{display:grid;gap:8px}
+#comment-image-generator .cs-color-options{display:flex;gap:8px;align-items:center}
+#comment-image-generator .cs-app input[type=color]{width:32px;height:32px;min-width:32px;padding:2px;border:1px solid var(--cs-line);border-radius:4px;cursor:pointer}
+#comment-image-generator .cs-color-swatches{display:flex;gap:5px;flex-wrap:wrap}
+#comment-image-generator .cs-app [data-avatar-color]{width:20px;height:20px;min-width:20px;min-height:20px;padding:0;border:2px solid transparent;border-radius:50%;background:var(--avatar-swatch);box-shadow:inset 0 0 0 1px #0001}
+#comment-image-generator .cs-app [data-avatar-color]:hover{background:var(--avatar-swatch);outline:1px solid #777;outline-offset:2px}
+#comment-image-generator .cs-app [data-avatar-color][aria-pressed=true]{outline:1px solid #171717;outline-offset:2px;border-color:#fff}
+#comment-image-generator .cs-comment-menu{position:absolute;width:190px;padding:6px;background:var(--cs-bg);border:1px solid var(--cs-line);border-radius:10px;box-shadow:0 4px 20px #0002;z-index:10}
+#comment-image-generator .cs-app .cs-comment-menu button{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:5px;padding:10px;font-size:13px}
+#comment-image-generator .cs-app .cs-comment-menu button:hover{background:#f2f2f2}
+@media(max-width:650px){#comment-image-generator .cs-preview-tools{gap:8px}#comment-image-generator .cs-canvas-theme .cs-segment button{min-height:36px}#comment-image-generator .cs-canvas-theme>span{display:none}}
 #comment-image-generator .cs-app .cs-resize-handle{position:absolute;display:block;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;touch-action:none;z-index:5}
 #comment-image-generator .cs-app .cs-resize-handle:hover{background:transparent}
 #comment-image-generator .cs-resize-handle:after{content:"";display:block;position:absolute;width:8px;height:8px;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid #171717;background:#fff;opacity:0}
