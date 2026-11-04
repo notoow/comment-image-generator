@@ -25,12 +25,13 @@
 <meta name="twitter:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261104-random1">
+<link rel="stylesheet" href="styles.css?v=20261104-resize1">
 <script src="assets/vendor/lucide-1.17.0.js" defer></script>
 <script src="assets/vendor/html-to-image-1.11.13.js" defer></script>
-<script src="native-templates.js?v=20261104-random1" defer></script>
-<script src="random-generators.js?v=20261104-random1" defer></script>
-<script src="app.js?v=20261104-random1" defer></script>
+<script src="native-templates.js?v=20261104-resize1" defer></script>
+<script src="random-generators.js?v=20261104-resize1" defer></script>
+<script src="resize-controller.js?v=20261104-resize1" defer></script>
+<script src="app.js?v=20261104-resize1" defer></script>
   <meta property="og:image:secure_url" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 </head>
 <body>
@@ -65,14 +66,14 @@
               <div class="cs-field"><span class="cs-field-title">이미지 테마</span><div class="cs-segment" role="group" aria-label="이미지 테마"><button type="button" class="cursor-interaction" data-theme="light" aria-pressed="true"><i data-lucide="sun" aria-hidden="true"></i>밝게</button><button type="button" class="cursor-interaction" data-theme="dark" aria-pressed="false"><i data-lucide="moon" aria-hidden="true"></i>어둡게</button></div></div>
               <div class="cs-field cs-opacity-field"><label class="cs-field"><span class="cs-field-title">배경 불투명도 <output data-opacity>100%</output></span><input data-key="opacity" type="range" min="0" max="100" value="100"></label><label class="cs-check">투명 배경<input data-transparent type="checkbox"></label></div>
               <div class="cs-pair"><label class="cs-field"><span class="cs-field-title">이미지 너비</span><input data-key="width" type="number" min="240" max="1600" step="1" value="960"></label><label class="cs-field"><span class="cs-field-title">글자 크기</span><select data-key="font"><option value="12">12 px</option><option value="14" selected>14 px</option><option value="16">16 px</option><option value="20">20 px</option><option value="24">24 px</option><option value="28">28 px</option><option value="32">32 px</option></select></label></div>
-              <div class="cs-spacing"><label class="cs-field"><span class="cs-field-title">위·아래 여백 <output data-padding>24 px</output></span><input data-key="padding" type="range" min="16" max="48" step="4" value="24"></label><span class="cs-help">위와 아래에 같은 여백을 적용합니다.</span><label class="cs-field"><span class="cs-field-title">좌·우 여백 <output data-horizontal>24 px</output></span><input data-key="horizontal" type="range" min="16" max="64" step="4" value="24"></label></div>
+              <div class="cs-height-control"><label class="cs-field"><span class="cs-field-title">이미지 높이</span><input data-key="height" type="number" min="64" max="8000" step="1" placeholder="자동" aria-label="이미지 높이"></label><button type="button" data-auto-height>높이 자동</button></div><div class="cs-spacing"><label class="cs-field"><span class="cs-field-title">위·아래 여백 <output data-padding>24 px</output></span><input data-key="padding" type="range" min="16" max="48" step="4" value="24"></label><span class="cs-help">위와 아래에 같은 여백을 적용합니다.</span><label class="cs-field"><span class="cs-field-title">좌·우 여백 <output data-horizontal>24 px</output></span><input data-key="horizontal" type="range" min="16" max="64" step="4" value="24"></label></div>
             </div>
           </div>
         </aside>
         <section class="cs-preview" aria-label="이미지 미리보기">
           <div class="cs-preview-heading"><div><h2>미리보기</h2><span class="cs-live">실시간 반영</span></div><span class="cs-platform-name">TikTok</span></div>
-          <div class="cs-stage"><span class="cs-stage-label">CANVAS</span><div class="cs-image-wrap"><canvas class="cs-image" aria-label="편집한 댓글 이미지">댓글 이미지 미리보기</canvas></div><span class="cs-dimension"><span data-size>960 × 220 px</span></span></div>
-          <div class="cs-under-preview"><span><i data-lucide="scan" aria-hidden="true"></i>화면에 맞춤</span><button type="button" class="cs-guide-toggle cursor-interaction" data-guide aria-pressed="false"><i data-lucide="ruler" aria-hidden="true"></i>여백 확인</button></div>
+          <div class="cs-stage"><span class="cs-stage-label">CANVAS</span><div class="cs-resize-area"><div class="cs-resize-origin" hidden></div><div class="cs-resize-frame" role="group" aria-label="댓글 이미지 크기 조절"><div class="cs-image-wrap"><canvas class="cs-image" aria-label="편집한 댓글 이미지">댓글 이미지 미리보기</canvas><div class="cs-live-comment" hidden></div></div><button type="button" class="cs-resize-handle" data-resize="n" aria-label="위쪽 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="e" aria-label="오른쪽 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="s" aria-label="아래쪽 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="w" aria-label="왼쪽 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="nw" aria-label="왼쪽 위 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="ne" aria-label="오른쪽 위 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="se" aria-label="오른쪽 아래 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><button type="button" class="cs-resize-handle" data-resize="sw" aria-label="왼쪽 아래 테두리 크기 조절" title="드래그 또는 방향키로 조절"></button><output class="cs-resize-tooltip" aria-live="off"></output></div></div><span class="cs-dimension"><span data-size>960 × 220 px</span></span></div>
+          <div class="cs-under-preview"><button type="button" class="cs-guide-toggle" data-fit><i data-lucide="scan" aria-hidden="true"></i>화면에 맞춤</button><span class="cs-resize-hint">테두리를 드래그해 크기 조절</span><button type="button" class="cs-guide-toggle cursor-interaction" data-guide aria-pressed="false"><i data-lucide="ruler" aria-hidden="true"></i>여백 확인</button></div>
           <div class="cs-export"><div><h3>PNG · 고해상도 2×</h3><p data-export-size>1,920 × 440 px</p><button type="button" class="cs-download-fallback" data-show-export hidden>저장용 이미지 보기</button></div><button type="button" class="cs-download cursor-interaction" data-download><i data-lucide="download" aria-hidden="true"></i>PNG 다운로드</button></div>
         </section>
       </div>

@@ -43,8 +43,8 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,font:14,padding:24,horizontal:24,guides:false};
-    const numeric = new Set(['likes','replies','postNumber','opacity','width','font','padding','horizontal']);
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
+    const numeric = new Set(['likes','replies','postNumber','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
     let previousOpacity = 100;
@@ -61,6 +61,7 @@
       if (!['light','dark'].includes(state.theme)) state.theme = 'light';
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
       state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
+      state.height=state.height?Math.max(64,Math.min(8000,Math.round(state.height))):0;
       if (![12,14,16,20,24,28,32].includes(state.font)) state.font = 14;
       state.opacity = Math.max(0,Math.min(100,state.opacity));
       state.padding = Math.max(16,Math.min(48,state.padding));
@@ -68,7 +69,7 @@
       state.text = state.text.slice(0,4000);state.handle=state.handle.slice(0,60);state.date=state.date.slice(0,30);
       for(const key of ['likes','replies']) state[key]=Math.max(0,Math.min(99999,Math.floor(state[key])));
       state.postNumber=Math.max(1,Math.min(999999999,Math.floor(state.postNumber)));
-      for (const input of all('[data-key]')) input.value = String(state[input.dataset.key]);
+      for (const input of all('[data-key]')) input.value = input.dataset.key==='height'&&!state.height?'':String(state[input.dataset.key]);
     }
     applySaved(savedFor(index));
     function avatarSource() {
@@ -101,6 +102,28 @@
       return CommentNative.render({state:snapshot,avatar,target,guides});
     }
     let renderVersion=0;
+    const liveHost=find('.cs-live-comment');
+    function sizeLabels({w,h}){
+      find('[data-size]').textContent=`${w.toLocaleString()} × ${h.toLocaleString()} px`;
+      find('[data-export-size]').textContent=`${(w*2).toLocaleString()} × ${(h*2).toLocaleString()} px${state.opacity===0?' · 투명 배경':''}`;
+      find('[data-key="height"]').placeholder=`자동 (${h} px)`;
+    }
+    const resizer=CommentResize.mount({
+      frame:find('.cs-resize-frame'),area:find('.cs-resize-area'),canvas,host:liveHost,
+      ghost:find('.cs-resize-origin'),tooltip:find('.cs-resize-tooltip'),getState:()=>state,
+      onStart(){clearTimeout(inputTimer);++renderVersion;canvas.setAttribute('aria-busy','true');find('[data-download]').disabled=true;},
+      onChange(next){
+        Object.assign(state,next);canvas.hidden=true;liveHost.hidden=false;
+        const size=CommentNative.preview({state:{...state},avatar:avatarSource(),host:liveHost});
+        if(state.height)state.height=size.h;
+        find('[data-key="width"]').value=state.width;find('[data-key="height"]').value=state.height||'';
+        sizeLabels(size);return size;
+      },
+      onEnd(){persist();render();},
+      onError(error){find('[data-status]').textContent=error.userMessage||'이 크기로 조절할 수 없습니다. 다른 크기를 선택해 주세요.';}
+    });
+    find('[data-fit]').addEventListener('click',()=>resizer.fit());
+    find('[data-auto-height]').addEventListener('click',()=>{state.height=0;find('[data-key="height"]').value='';render();persist();});
     async function render(){
       const version=++renderVersion;canvas.setAttribute("aria-busy","true");
       app.dataset.imageTheme=state.theme;
@@ -121,14 +144,14 @@
       find('[data-download]').disabled=true;
       let rendered=false;
       try {
-        const temp=document.createElement('canvas');const {w,h,overflow}=await paint(temp,state.guides);
+        const temp=document.createElement('canvas');const size=await paint(temp,state.guides);const {w,h,overflow}=size;
         if(version!==renderVersion)return;
         rendered=true;canvas.dataset.layoutOverflow=String(overflow);canvas.width=temp.width;canvas.height=temp.height;canvas.getContext('2d').drawImage(temp,0,0);
-        find('[data-size]').textContent=`${w.toLocaleString()} × ${h.toLocaleString()} px`;
-        find('[data-export-size]').textContent=`${(w*2).toLocaleString()} × ${(h*2).toLocaleString()} px${state.opacity===0?' · 투명 배경':''}`;
+        if(state.height){state.height=h;find('[data-key="height"]').value=h;persist();}
+        sizeLabels(size);resizer.update(size);
       } catch(error) {
         if(version===renderVersion){find('[data-status]').textContent=error.userMessage||'이미지를 만들지 못했습니다. 설정을 바꾸거나 새로고침해 주세요.';canvas.width=0;canvas.height=0;find('[data-size]').textContent='설정을 조절해 주세요.';find('[data-export-size]').textContent='PNG 출력 범위 초과';}
-        console.error('Comment render failed',error);
+        liveHost.hidden=true;liveHost.replaceChildren();canvas.hidden=false;console.error('Comment render failed',error);
       } finally {
         if(version===renderVersion){canvas.setAttribute('aria-busy','false');find('[data-download]').disabled=!rendered||!state.text.trim();}
       }

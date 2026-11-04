@@ -160,7 +160,7 @@
       row.append(body(c,{fontFamily:'"MS PGothic","ＭＳ Ｐゴシック",monospace',fontSize:px(14),lineHeight:px(21),marginTop:px(4)}));
     }
   };
-  async function render({state,avatar,target,guides}) {
+  function build({state,avatar}) {
     if(!renderers[state.platform] && !['youtube','instagram','dc'].includes(state.platform))throw new Error('지원하지 않는 플랫폼입니다.');
     const yt=state.platform==='youtube',dark=state.theme==='dark',scale=state.font/14;
     const px=v=>v*scale+'px',ink=dark?'#f1f1f1':'#0f0f0f',muted=dark?'#aaa':'#606060';
@@ -198,8 +198,39 @@
     }
     const available=state.width-2*state.horizontal;
     if(available<128*scale&&row.contains(pic)){pic.style.maxWidth=available*.22+'px';pic.style.height='auto';pic.style.aspectRatio='1';row.style.gap=Math.min(parseFloat(row.style.gap)||0,available*.08)+'px';}
-    root.setAttribute('aria-hidden','true');root.dataset.nativeTemplate=state.platform;document.body.append(root);
-    try{await document.fonts.ready;const h=Math.ceil(root.getBoundingClientRect().height);if(h*2>32760||state.width*h*4>32000000){const error=new Error('댓글이 너무 길어 이미지를 만들 수 없습니다. 너비를 늘리거나 글자 크기를 줄여 주세요.');error.userMessage=error.message;throw error;}const fontEmbedCSS=await embeddedFonts(root);const rendered=await htmlToImage.toCanvas(root,{fontEmbedCSS,pixelRatio:2,width:state.width,height:h,cacheBust:false,style:{position:'static',left:'auto',top:'auto'},skipAutoScale:true});target.width=rendered.width;target.height=rendered.height;const g=target.getContext('2d');g.drawImage(rendered,0,0);if(guides){g.strokeStyle=muted;g.setLineDash([6,5]);for(const y of [state.padding*2,(h-state.padding)*2]){g.beginPath();g.moveTo(0,y);g.lineTo(target.width,y);g.stroke();}}return {w:state.width,h,overflow:root.scrollWidth>root.clientWidth};}finally{root.remove();}
+    root.setAttribute('aria-hidden','true');root.dataset.nativeTemplate=state.platform;
+    row.style.flexShrink='0';
+    return {root,muted};
   }
-  window.CommentNative={render};
+  function measure(root,state){
+    // Read layout pixels: a live preview's ancestor is scaled to fit the screen.
+    // getBoundingClientRect() would report screen pixels and shrink saved heights.
+    const minH=Math.ceil(parseFloat(getComputedStyle(root).height));
+    root.style.minHeight=Math.max(minH,state.height||0)+'px';
+    root.style.display='flex';root.style.flexDirection='column';root.style.justifyContent='center';
+    const h=Math.ceil(parseFloat(getComputedStyle(root).height));
+    if(h*2>32760||state.width*h*4>32000000){
+      const error=new Error('이미지가 너무 큽니다. 너비·높이 또는 글자 크기를 줄여 주세요.');error.userMessage=error.message;throw error;
+    }
+    return {w:state.width,h,minH,overflow:root.scrollWidth>root.clientWidth};
+  }
+  function preview({state,avatar,host}){
+    const {root}=build({state,avatar});root.style.position='relative';root.style.left='0';root.style.top='0';
+    host.replaceChildren(root);
+    return measure(root,state);
+  }
+  async function render({state,avatar,target,guides}){
+    const {root,muted}=build({state,avatar});document.body.append(root);
+    try {
+      await document.fonts.ready;
+      const size=measure(root,state),{w,h}=size;
+      const fontEmbedCSS=await embeddedFonts(root);
+      const rendered=await htmlToImage.toCanvas(root,{fontEmbedCSS,pixelRatio:2,width:w,height:h,cacheBust:false,style:{position:'static',left:'auto',top:'auto'},skipAutoScale:true});
+      target.width=rendered.width;target.height=rendered.height;
+      const g=target.getContext('2d');g.drawImage(rendered,0,0);
+      if(guides){g.strokeStyle=muted;g.setLineDash([6,5]);for(const y of [state.padding*2,(h-state.padding)*2]){g.beginPath();g.moveTo(0,y);g.lineTo(target.width,y);g.stroke();}}
+      return size;
+    } finally {root.remove();}
+  }
+  window.CommentNative={render,preview};
 })();
