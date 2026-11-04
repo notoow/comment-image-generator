@@ -78,6 +78,12 @@ source container:
   checked at 2×. The native vectors render into exported PNGs.
 - Actual editor: TikTok platform switch, text editing, automatic height,
   keyboard edge resizing and PNG download were exercised.
+- Final public-image inspection caught a TikTok export-only overlap: the
+  flex/auto-margin heart moved below its measured DOM position in raster output.
+  Replaced that footer with explicit grid columns and added SVG width/height
+  attributes. The PNG check now samples the **measured heart rectangle** and
+  fails if it contains no icon pixels. This checks the rendered image, rather
+  than relying only on DOM bounds. Oversized custom text uses a stacked footer.
 
 Run a local static server and open `/tests/platform-layout.html`. Source DOM
 measurements, PNGs and contact sheets from this audit are ignored local evidence

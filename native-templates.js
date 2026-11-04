@@ -45,6 +45,7 @@
     if(!original)return lineIcon(name,size*c.scale,stroke);
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('viewBox',original.viewBox);svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('width',size*c.scale);svg.setAttribute('height',size*c.scale);
     svg.dataset.sourceIcon=c.state.platform+':'+key;
     Object.assign(svg.style,{display:'block',flex:'none',width:c.px(size),height:c.px(size),fill:'currentColor',stroke:'none'});
     // Markup contains only inspected vector geometry from the bundled static catalog.
@@ -75,8 +76,11 @@
       const header=actions(c,{minHeight:px(21),fontSize:px(13),lineHeight:px(16.9),color:c.root.style.color,flexWrap:'nowrap',columnGap:px(8)});
       header.append(e('span',{fontWeight:'500',flex:'1',minWidth:'0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},c.handle),sourceIcon(c,'more',14));
       content.append(header,body(c,{marginTop:px(6),fontWeight:'478'}));
-      const meta=actions(c,{fontSize:px(13),lineHeight:px(21),columnGap:px(12),marginTop:px(6)});
-      meta.append(e('span',{color:dark?'#ffffff66':'#00000057'},state.date),e('span',{fontSize:px(14),fontWeight:'500'},'답글'),action(c,'heart',state.likes,{size:20,marginLeft:'auto',gap:'0',fontSize:px(14)}));content.append(meta);
+      const meta=e('div',{display:'grid',gridTemplateColumns:'minmax(0,1fr) auto',alignItems:'center',columnGap:px(12),fontSize:px(13),lineHeight:px(21),marginTop:px(6),color:c.muted});meta.dataset.nativeActions='tiktok';
+      const details=actions(c,{columnGap:px(12),fontSize:px(13),lineHeight:px(21),minWidth:'0'});
+      details.append(e('span',{color:dark?'#ffffff66':'#00000057'},state.date),e('span',{fontSize:px(14),fontWeight:'500'},'답글'));
+      meta.append(details,action(c,'heart',state.likes,{size:20,gap:'0',fontSize:px(14)}));content.append(meta);
+      if(state.width-2*state.horizontal<128*c.scale){meta.style.gridTemplateColumns='minmax(0,1fr)';meta.style.rowGap=px(8);meta.lastElementChild.style.justifySelf='end';}
       if(state.replies>0)content.append(expansion(c,`답글 ${state.replies}개 보기 ⌄`));
     },
     douyin(c){

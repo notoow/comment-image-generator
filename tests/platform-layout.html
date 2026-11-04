@@ -29,7 +29,11 @@ document.querySelector('#png').onclick=async()=>{
   const canvas=document.createElement('canvas');section.append(canvas);
   const theme=document.querySelector('#theme').value,zero=document.querySelector('#zero').checked;
   const state={...base,platform,theme,width,handle:'notoow',date:'2일 전',likes:zero?0:24,replies:zero?0:3,text:'설명이 정말 깔끔해서 끝까지 보게 되네요.\n다음 영상도 기대할게요!'};
-  try{const size=await CommentNative.render({state,avatar,target:canvas,guides:false});const img=document.createElement('img');img.dataset.export=platform+'-'+width+'-'+theme+(zero?'-zero':'');img.src=canvas.toDataURL();img.hidden=true;section.append(img);results.push({platform,theme,zero,width,...size,pngWidth:canvas.width,pngHeight:canvas.height})}catch(error){results.push({platform,width,error:error.message})}
+  const host=document.createElement('div');host.className='host';host.dataset.preview=platform+'-'+width;section.append(host);CommentNative.preview({state,avatar,host});
+  try{const size=await CommentNative.render({state,avatar,target:canvas,guides:false});const img=document.createElement('img');img.dataset.export=platform+'-'+width+'-'+theme+(zero?'-zero':'');img.src=canvas.toDataURL();img.hidden=true;section.append(img);const record={platform,theme,zero,width,...size,pngWidth:canvas.width,pngHeight:canvas.height};
+   if(platform==='tiktok'){const root=host.firstElementChild.getBoundingClientRect(),heart=host.querySelector('[data-source-icon="tiktok:heart"]').getBoundingClientRect(),zoom=root.width/state.width;const x=Math.round((heart.left-root.left)/zoom*2),y=Math.round((heart.top-root.top)/zoom*2);const data=canvas.getContext('2d').getImageData(x,y,Math.round(heart.width/zoom*2),Math.round(heart.height/zoom*2)).data;let pixels=0,bg=theme==='dark'?15:255;for(let i=0;i<data.length;i+=4)if(Math.abs(data[i]-bg)>32||Math.abs(data[i+1]-bg)>32||Math.abs(data[i+2]-bg)>32)pixels++;record.heartPixels=pixels;if(pixels<8)record.error='Exported heart missing from its measured footer position';}
+   results.push(record)
+  }catch(error){results.push({platform,width,error:error.message})}
  }
  document.querySelector('#result').textContent=JSON.stringify(results,null,2);document.querySelector('#result').dataset.exportDone='true';
 };
