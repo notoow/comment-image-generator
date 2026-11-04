@@ -44,3 +44,21 @@ Native SVGs now keep their inline dimensions in interactive previews, avoiding
 the editor's global 16px icon rule. Evidence is local in
 `.artifacts/youtube-detail-proof/`. This is a verification of these specific
 corrections, not a claim of complete parity for every YouTube feature/platform.
+
+## Resize focus regression correction
+
+The follow-up screenshot at 261×214 showed a long black rectangle on the right
+edge. It was the global button focus outline around the full-height east resize
+hit target: pointer-down programmatically focuses that target. It was not the
+YouTube menu's button border. The previous verification missed the focused edge
+state after a drag.
+
+Scope resize-handle focus to its small square pseudo-element. Keep the whole
+hit target usable and keyboard focus visible on the square; do not outline the
+full-length edge. The outer frame and all eight handles remain available.
+
+Re-inspected the original YouTube page: the menu still has the exact path quoted
+above, 24×24 SVG and a borderless 40×40 button. Retained those source values.
+Browser checks: dragged the right edge from 270 to 261px with focus retained;
+computed edge outline was none. Keyboard Tab focus showed a solid outline on
+the small marker only, and ArrowRight resized to 262px. The menu still opened.

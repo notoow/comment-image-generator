@@ -112,6 +112,9 @@
 @media(max-width:650px){#comment-image-generator .cs-preview-tools{gap:8px}#comment-image-generator .cs-canvas-theme .cs-segment button{min-height:36px}#comment-image-generator .cs-canvas-theme>span{display:none}}
 #comment-image-generator .cs-app .cs-resize-handle{position:absolute;display:block;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;touch-action:none;z-index:5}
 #comment-image-generator .cs-app .cs-resize-handle:hover{background:transparent}
+/* Keep focus on the grip marker, never around the full edge hit area. */
+#comment-image-generator .cs-app .cs-resize-handle:focus{outline:none}
+#comment-image-generator .cs-app .cs-resize-handle:focus-visible:after{outline:2px solid #171717;outline-offset:2px}
 #comment-image-generator .cs-resize-handle:after{content:"";display:block;position:absolute;width:8px;height:8px;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid #171717;background:#fff;opacity:0}
 #comment-image-generator .cs-resize-handle[data-resize=n],#comment-image-generator .cs-resize-handle[data-resize=s]{left:10px;width:calc(100% - 20px);height:16px;cursor:ns-resize}
 #comment-image-generator .cs-resize-handle[data-resize=n]{top:-8px}
