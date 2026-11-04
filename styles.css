@@ -93,7 +93,7 @@
 #comment-image-generator .cs-export h3{font-size:12px;margin-bottom:4px}
 #comment-image-generator .cs-export p{font-size:11px;color:var(--cs-muted);font-variant-numeric:tabular-nums}
 #comment-image-generator .cs-app .cs-download{background:var(--cs-accent);color:var(--cs-on-accent);border-color:var(--cs-accent);padding:12px 17px;min-height:44px}
-#comment-image-generator .cs-app .cs-download:hover{filter:brightness(.96)}
+#comment-image-generator .cs-app .cs-download:hover{background:var(--cs-accent);color:var(--cs-on-accent);filter:brightness(.96)}
 #comment-image-generator .cs-bottom{padding:15px 24px;border-top:1px solid var(--cs-line);display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:11px;color:var(--cs-muted)}
 #comment-image-generator .cs-bottom span{display:flex;align-items:center;gap:7px}
 #comment-image-generator .cs-status{max-width:74%;overflow-wrap:anywhere}
