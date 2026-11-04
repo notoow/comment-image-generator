@@ -25,11 +25,12 @@
 <meta name="twitter:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261104-native2">
+<link rel="stylesheet" href="styles.css?v=20261104-random1">
 <script src="assets/vendor/lucide-1.17.0.js" defer></script>
 <script src="assets/vendor/html-to-image-1.11.13.js" defer></script>
-<script src="native-templates.js?v=20261104-native2" defer></script>
-<script src="app.js?v=20261104-native2" defer></script>
+<script src="native-templates.js?v=20261104-random1" defer></script>
+<script src="random-generators.js?v=20261104-random1" defer></script>
+<script src="app.js?v=20261104-random1" defer></script>
   <meta property="og:image:secure_url" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 </head>
 <body>
@@ -52,8 +53,8 @@
           </div>
           <div class="cs-control-body">
             <div class="cs-panel" data-panel="content">
-              <div class="cs-field" data-avatar-field><span class="cs-field-title">프로필</span><div class="cs-avatar-row"><canvas class="cs-avatar-mini" width="84" height="84" aria-label="선택한 프로필"></canvas><select data-key="avatarMode" aria-label="프로필 스타일"><option value="default">기본 프로필</option><option value="random">랜덤 프로필</option><option value="original">업로드한 사진</option><option value="mosaic">모자이크</option><option value="blur">블러</option></select><button type="button" class="cs-icon-button cursor-interaction" data-upload aria-label="프로필 사진 업로드"><i data-lucide="upload" aria-hidden="true"></i></button><input type="file" data-file accept="image/*" hidden></div></div>
-              <label class="cs-field"><span class="cs-field-title">아이디</span><span class="cs-inline-input"><input data-key="handle" value="@slow_morning" maxlength="60" autocomplete="off"><button type="button" class="cs-icon-button cursor-interaction" data-random aria-label="임의 아이디와 프로필 만들기"><i data-lucide="shuffle" aria-hidden="true"></i></button></span></label>
+              <div class="cs-field" data-avatar-field><span class="cs-field-title">프로필</span><div class="cs-avatar-row"><canvas class="cs-avatar-mini" width="84" height="84" aria-label="선택한 프로필"></canvas><select data-key="avatarMode" aria-label="프로필 스타일"><option value="default">기본 프로필</option><option value="random">랜덤 프로필</option><option value="original">업로드한 사진</option><option value="mosaic">모자이크</option><option value="blur">블러</option></select><button type="button" class="cs-icon-button cursor-interaction" data-upload aria-label="프로필 사진 업로드"><i data-lucide="upload" aria-hidden="true"></i></button><input type="file" data-file accept="image/*" hidden></div><button type="button" class="cs-generate-button cursor-interaction" data-random-avatar><i data-lucide="shuffle" aria-hidden="true"></i>프로필 랜덤 생성</button></div>
+              <div class="cs-field"><label class="cs-field-title" for="comment-handle">아이디</label><input id="comment-handle" data-key="handle" value="@slow_morning" maxlength="60" autocomplete="off"><div class="cs-name-generator"><select data-key="nameStyle" aria-label="랜덤 아이디 종류"><option value="color">색상</option><option value="food">음식</option><option value="phrase" selected>자연어</option><option value="alphabet">알파벳 조합</option></select><button type="button" class="cs-generate-button cursor-interaction" data-random-name><i data-lucide="shuffle" aria-hidden="true"></i>아이디 랜덤 생성</button></div></div>
               <label class="cs-field cs-text-field"><span class="cs-field-title">댓글 내용 <output data-count>0 / 4,000</output></span><textarea data-key="text" rows="4" maxlength="4000" spellcheck="false">설명이 정말 깔끔해서 끝까지 보게 되네요.
 다음 영상도 기대할게요!</textarea></label>
               <label class="cs-field"><span class="cs-field-title">작성 시점</span><input data-key="date" value="9일 전" maxlength="30" autocomplete="off"></label>

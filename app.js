@@ -43,7 +43,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,font:14,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,opacity:100,width:960,font:14,padding:24,horizontal:24,guides:false};
     const numeric = new Set(['likes','replies','postNumber','opacity','width','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
@@ -57,6 +57,7 @@
         else if (typeof data[key] === typeof state[key]) state[key] = data[key];
       }
       if (!platforms.some(p=>p.id===state.platform)) state.platform = 'tiktok';
+      if (!CommentRandom.styles.includes(state.nameStyle)) state.nameStyle = 'phrase';
       if (!['light','dark'].includes(state.theme)) state.theme = 'light';
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
       state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
@@ -146,7 +147,14 @@
     all('[data-panel-button]').forEach(b=>b.addEventListener('click',()=>{state.panel=b.dataset.panelButton;render();persist();}));
     find('[data-guide]').addEventListener('click',()=>{state.guides=!state.guides;render();persist();});
     find('[data-transparent]').addEventListener('change',e=>{if(e.target.checked){previousOpacity=state.opacity||100;state.opacity=0;}else state.opacity=previousOpacity;find('[data-key="opacity"]').value=state.opacity;render();persist();});
-    find('[data-random]').addEventListener('click',()=>{uploadVersion++;const words=['slow','mellow','daily','mint','sunny','blue','cloud'];const n=crypto.getRandomValues(new Uint32Array(3));state.handle=`@${words[n[0]%words.length]}_${words[n[1]%words.length]}${n[2]%100}`;state.avatarSeed=n[2]%100000;state.avatarMode='random';find('[data-key="handle"]').value=state.handle;find('[data-key="avatarMode"]').value=state.avatarMode;render();persist();});
+    find('[data-random-name]').addEventListener('click',()=>{
+      state.handle=CommentRandom.name(state.nameStyle,state.handle);
+      find('[data-key="handle"]').value=state.handle;render();persist();
+    });
+    find('[data-random-avatar]').addEventListener('click',()=>{
+      uploadVersion++;state.avatarSeed=CommentRandom.avatarSeed(state.avatarSeed);state.avatarMode='random';
+      find('[data-key="avatarMode"]').value=state.avatarMode;render();persist();
+    });
     find('[data-upload]').addEventListener('click',()=>find('[data-file]').click());
     find('[data-file]').addEventListener('change',async e=>{
       const file=e.target.files[0];if(!file)return;const version=++uploadVersion;const url=URL.createObjectURL(file);
