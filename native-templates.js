@@ -38,6 +38,18 @@
     svg.style.cssText='display:block;flex:none';svg.style.width=size+'px';svg.style.height=size+'px';svg.style.strokeWidth=stroke;
     const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',outlines[name]);svg.append(path);return svg;
   }
+  function sourceIcon(c,name,size=18,stroke=1.6){
+    const aliases={reddit:{vote:'upvote',more:'overflow-horizontal'},xiaohongshu:{comment:'reply'}};
+    const key=aliases[c.state.platform]?.[name]||name;
+    const original=window.CommentSourceIcons?.[c.state.platform]?.[key];
+    if(!original)return lineIcon(name,size*c.scale,stroke);
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox',original.viewBox);svg.setAttribute('aria-hidden','true');
+    svg.dataset.sourceIcon=c.state.platform+':'+key;
+    Object.assign(svg.style,{display:'block',flex:'none',width:c.px(size),height:c.px(size),fill:'currentColor',stroke:'none'});
+    // Markup contains only inspected vector geometry from the bundled static catalog.
+    svg.innerHTML=original.markup;return svg;
+  }
   function setup(c,{avatar=40,gap=12,body=14,line=20,font='Arial,"Microsoft YaHei",sans-serif'}={}){
     const {root,row,pic,content,px}=c;root.style.fontFamily=font;
     root.style.fontSize=px(body);root.style.lineHeight=px(line);row.style.gap=px(gap);
@@ -47,24 +59,25 @@
   function body(c,style={}){const n=e('div',{whiteSpace:'pre-wrap',overflowWrap:'anywhere',...style});n.append(c.text);return n;}
   function actions(c,style={}){return e('div',{display:'flex',alignItems:'center',flexWrap:'wrap',columnGap:c.px(16),rowGap:c.px(8),color:c.muted,fontSize:c.px(12),lineHeight:c.px(18),...style});}
   function action(c,name,label,{size=18,stroke=1.6,...style}={}){
-    const n=e('span',{display:'inline-flex',alignItems:'center',gap:c.px(4),...style});
-    if(name)n.append(lineIcon(name,size*c.scale,stroke));
-    if(label!==undefined&&label!=='')n.append(e('span',{},String(label)));return n;
+    const n=e('span',{display:'inline-flex',alignItems:'center',gap:c.px(4),minWidth:'0',maxWidth:'100%',...style});
+    if(name)n.append(sourceIcon(c,name,size,stroke));
+    if(label!==undefined&&label!=='')n.append(e('span',{minWidth:'0',overflowWrap:'anywhere'},String(label)));return n;
   }
   function expansion(c,label){
     const row=actions(c,{marginTop:c.px(16),columnGap:c.px(12)});
     row.append(e('span',{width:c.px(24),borderTop:'1px solid currentColor',flex:'none'}),e('span',{fontWeight:'600'},label));return row;
   }
+  const compactCount=(value,locale)=>new Intl.NumberFormat(locale,{notation:'compact',maximumFractionDigits:1}).format(value);
   const renderers={
     tiktok(c){
-      setup(c,{avatar:40,gap:12,body:14,line:21});const {state,content,row,px,dark}=c;
-      c.muted=dark?'#ffffff80':'#16182380';c.root.style.color=dark?'#f5f5f5':'#161823';
-      content.append(e('div',{fontSize:px(14),fontWeight:'700',lineHeight:px(21)},c.handle),body(c));
-      const meta=actions(c,{fontSize:px(14),lineHeight:px(21),columnGap:px(24)});
-      meta.append(e('span',{},state.date),e('span',{},'Reply'));content.append(meta);
-      if(state.replies>0)content.append(expansion(c,`View ${state.replies} replies ⌄`));
-      const like=e('div',{display:'flex',flexDirection:'column',alignItems:'center',gap:px(4),flex:'none',color:c.muted,fontSize:px(12),lineHeight:px(16),paddingTop:px(24)});
-      like.append(lineIcon('heart',20*c.scale,1.8),e('span',{},String(state.likes)));row.append(like);
+      setup(c,{avatar:32,gap:8,body:15,line:22.5});const {state,content,px,dark}=c;
+      c.muted=dark?'#ffffff99':'#0000007a';c.root.style.color=dark?'#f6f6f6':'#161823';
+      const header=actions(c,{minHeight:px(21),fontSize:px(13),lineHeight:px(16.9),color:c.root.style.color,flexWrap:'nowrap',columnGap:px(8)});
+      header.append(e('span',{fontWeight:'500',flex:'1',minWidth:'0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},c.handle),sourceIcon(c,'more',14));
+      content.append(header,body(c,{marginTop:px(6),fontWeight:'478'}));
+      const meta=actions(c,{fontSize:px(13),lineHeight:px(21),columnGap:px(12),marginTop:px(6)});
+      meta.append(e('span',{color:dark?'#ffffff66':'#00000057'},state.date),e('span',{fontSize:px(14),fontWeight:'500'},'답글'),action(c,'heart',state.likes,{size:20,marginLeft:'auto',gap:'0',fontSize:px(14)}));content.append(meta);
+      if(state.replies>0)content.append(expansion(c,`답글 ${state.replies}개 보기 ⌄`));
     },
     douyin(c){
       setup(c,{avatar:40,gap:8,body:16,line:24});const {state,root,content,px,dark}=c;
@@ -72,37 +85,43 @@
       root.style.color=dark?'#ffffffe6':'#161823';c.muted=dark?'#ffffff80':'#16182380';
       content.append(e('div',{fontSize:px(14),lineHeight:px(22),color:c.muted},c.handle),body(c,{marginTop:px(4)}));
       content.append(e('div',{fontSize:px(14),lineHeight:px(22),marginTop:px(4),color:c.muted},state.date));
-      const bar=actions(c,{marginTop:px(12),fontSize:px(14),columnGap:px(16)});
+      const bar=actions(c,{marginTop:px(12),fontSize:px(14),columnGap:px(state.width-2*state.horizontal<280*c.scale?8:16)});
       bar.append(action(c,'comment','回复',{size:16}),action(c,'share','分享',{size:16}),action(c,'heart',state.likes,{size:16}),action(c,'broken',undefined,{size:16}));content.append(bar);
       if(state.replies>0)content.append(expansion(c,`展开 ${state.replies} 条回复 ⌄`));
     },
     reddit(c){
       setup(c,{avatar:32,gap:8,body:14,line:20,font:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif'});
       const {state,content,root,pic,px,dark}=c;c.muted=dark?'#b8c5c9':'#576f76';root.style.color=dark?'#eef1f3':'#0f1a1c';
-      const header=actions(c,{minHeight:px(32),gap:px(8),color:root.style.color,fontSize:px(12),lineHeight:px(16)});
-      header.append(e('span',{fontWeight:'700'},c.handle),e('span',{color:c.muted},'• '+state.date));content.append(header,body(c,{marginTop:px(8)}));
-      const bar=actions(c,{marginTop:px(8),minHeight:px(32),columnGap:px(16),fontWeight:'600'});
-      const votes=actions(c,{gap:px(8),color:root.style.color});const down=lineIcon('vote',16*c.scale);down.style.transform='rotate(180deg)';
-      votes.append(lineIcon('vote',16*c.scale),e('span',{},String(state.likes)),down);
-      bar.append(votes,action(c,'comment','Reply',{size:16}),action(c,'award','Award',{size:16}),action(c,'share','Share',{size:16}),action(c,'more',undefined,{size:16}));content.append(bar);
+      const header=actions(c,{minHeight:px(36),gap:px(4),color:root.style.color,fontSize:px(12),lineHeight:px(16),flexWrap:'nowrap'});
+      header.append(e('span',{fontWeight:'700',minWidth:'0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},c.handle),e('span',{color:c.muted,flex:'none'},'•'),e('span',{color:c.muted,minWidth:'0'},state.date));content.append(header,body(c,{marginTop:px(4),marginBottom:px(4)}));
+      const bar=actions(c,{minHeight:px(32),columnGap:'0',fontWeight:'600'});
+      bar.dataset.nativeActions='reddit';
+      const votes=actions(c,{gap:'0',color:root.style.color,flexWrap:'wrap',maxWidth:'100%',minWidth:'0'});
+      for(const name of ['vote','downvote']){const cell=e('span',{width:px(32),maxWidth:'100%',height:px(32),display:'flex',alignItems:'center',justifyContent:'center',flex:'none'});cell.append(sourceIcon(c,name,16));votes.append(cell);if(name==='vote')votes.append(e('span',{minWidth:'0',maxWidth:'100%'},compactCount(state.likes,'ko-KR')));}
+      const compact=state.width-2*state.horizontal<340*c.scale;
+      bar.append(votes,action(c,'comment',compact?'답글':'답글 달기',{size:16,padding:px(8)+' '+px(compact?0:12)}));
+      if(state.width-2*state.horizontal>=400*c.scale)bar.append(action(c,'award','어워드',{size:16,padding:px(8)+' '+px(12)}),action(c,'share','공유',{size:16,padding:px(8)+' '+px(12)}));
+      bar.append(action(c,'more',undefined,{size:16,padding:px(8)+' '+px(compact?0:8)}));content.append(bar);
       if(state.replies>0){const connector=e('div',{marginTop:px(8),borderLeft:`1px solid ${dark?'#434f53':'#d2dadd'}`,paddingLeft:px(12),fontSize:px(12),lineHeight:px(24),color:c.muted},`${state.replies} more replies`);content.append(connector);}
-      pic.style.marginTop='0';
+      pic.style.marginTop=px(4);
     },
     x(c){
-      setup(c,{avatar:40,gap:12,body:15,line:20,font:'Arial,"Segoe UI",sans-serif'});const {state,content,row,px,dark}=c;
+      setup(c,{avatar:40,gap:8,body:15,line:20,font:'Arial,"Segoe UI",sans-serif'});const {state,content,row,px,dark}=c;
       c.root.style.color=dark?'#e7e9ea':'#0f1419';c.muted=dark?'#71767b':'#536471';
       const header=actions(c,{fontSize:px(15),lineHeight:px(20),columnGap:px(4),color:c.root.style.color,flexWrap:'nowrap'});
-      header.append(e('span',{fontWeight:'700',minWidth:'0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},c.handle),e('span',{minWidth:'0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',color:c.muted},'@'+c.handle+' · '+state.date),action(c,'more',undefined,{size:18,marginLeft:'auto',color:c.muted}));
+      header.append(e('span',{fontWeight:'700',minWidth:'0',maxWidth:'50%',flexShrink:'0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},c.handle),e('span',{minWidth:'0',flex:'1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',color:c.muted},'@'+c.handle+' · '+state.date),action(c,'more',undefined,{size:18.75,marginLeft:'auto',color:c.muted,flex:'none'}));
       content.append(header,body(c,{marginTop:px(2)}));
-      const bar=actions(c,{marginTop:px(12),justifyContent:'space-between',columnGap:px(12),maxWidth:px(600)});
-      bar.append(action(c,'comment',state.replies),action(c,'repeat',undefined),action(c,'heart',state.likes),action(c,'chart',undefined),action(c,'bookmark',undefined),action(c,'upload',undefined));content.append(bar);
+      const tight=state.width-2*state.horizontal<208*c.scale;
+      const bar=actions(c,{marginTop:px(12),justifyContent:'space-between',columnGap:px(tight?0:4),maxWidth:px(600),fontSize:px(13),lineHeight:px(20)});
+      bar.dataset.nativeActions='x';
+      bar.append(action(c,'comment',state.replies?compactCount(state.replies,'en-US'):undefined,{size:18.75,gap:px(tight?2:4)}),action(c,'repeat',undefined,{size:18.75}),action(c,'heart',state.likes?compactCount(state.likes,'en-US'):undefined,{size:18.75,gap:px(tight?2:4)}),action(c,'chart',undefined,{size:18.75}),action(c,'bookmark',undefined,{size:18.75}),action(c,'upload',undefined,{size:18.75}));content.append(bar);
     },
     facebook(c){
       setup(c,{avatar:32,gap:6,body:15,line:20,font:'"Segoe UI Historic","Segoe UI",Helvetica,Arial,sans-serif'});const {state,content,pic,px,dark}=c;
       c.root.style.color=dark?'#e4e6eb':'#050505';c.muted=dark?'#b0b3b8':'#65676b';pic.style.marginTop=px(2);
       const bubble=e('div',{position:'relative',display:'inline-block',maxWidth:'100%',boxSizing:'border-box',padding:px(8)+' '+px(12),borderRadius:px(18),background:dark?'#3a3b3c':'#f0f2f5'});
       bubble.append(e('div',{fontSize:px(12),fontWeight:'600',lineHeight:px(16)},c.handle),body(c));content.append(bubble);
-      if(state.likes>0){const reactions=actions(c,{position:'absolute',right:px(-8),bottom:px(-8),columnGap:px(4),fontSize:px(12),background:dark?'#242526':'#fff',borderRadius:px(12),padding:px(2)+' '+px(5),boxShadow:'0 1px 3px #0002'});const badge=action(c,'thumb',undefined,{size:11,color:'white',background:'#0866ff',borderRadius:'50%',padding:px(3)});reactions.append(badge,e('span',{},String(state.likes)));bubble.append(reactions);}
+      if(state.likes>0){const reactions=actions(c,{position:'absolute',right:'0',bottom:px(-8),columnGap:px(4),maxWidth:'100%',fontSize:px(12),background:dark?'#242526':'#fff',borderRadius:px(12),padding:px(2)+' '+px(5),boxShadow:'0 1px 3px #0002'});const badge=e('img',{width:px(18),height:px(18),flex:'none'});badge.src=new URL('assets/facebook-like.svg',document.baseURI).href;badge.alt='';reactions.append(e('span',{minWidth:'0',overflowWrap:'anywhere'},String(state.likes)),badge);bubble.append(reactions);}
       const footer=actions(c,{paddingLeft:px(12),marginTop:px(9),columnGap:px(16),lineHeight:px(16)});
       footer.append(e('span',{},state.date),e('span',{fontWeight:'700'},'좋아요'),e('span',{fontWeight:'700'},'답글 달기'));content.append(footer);
       if(state.replies>0)content.append(e('div',{fontSize:px(13),fontWeight:'600',lineHeight:px(20),marginTop:px(8),paddingLeft:px(12),color:c.muted},`↳ 답글 ${state.replies}개 보기`));
@@ -111,7 +130,8 @@
       setup(c,{avatar:36,gap:12,body:15,line:21,font:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#777':'#999';
       const header=actions(c,{fontSize:px(15),lineHeight:px(21),columnGap:px(8),color:c.ink});
       header.append(e('span',{fontWeight:'600'},c.handle),e('span',{color:c.muted},state.date),action(c,'more',undefined,{size:20,marginLeft:'auto',color:c.muted}));content.append(header,body(c,{marginTop:px(3)}));
-      const bar=actions(c,{marginTop:px(12),columnGap:px(18),color:c.ink});
+      const bar=actions(c,{marginTop:px(12),columnGap:px(state.width-2*state.horizontal<280*c.scale?8:18),color:c.ink});
+      bar.dataset.nativeActions='threads';
       bar.append(action(c,'heart',state.likes||undefined,{size:22}),action(c,'comment',state.replies||undefined,{size:22}),action(c,'repeat',undefined,{size:22}),action(c,'send',undefined,{size:22}));content.append(bar);
     },
     tieba(c){
@@ -124,41 +144,47 @@
       footer.append(e('span',{},String(state.postNumber)+'楼'),e('span',{},state.date),e('span',{color:dark?'#97bdfc':'#2d64b3'},`回复 (${state.replies})`));content.append(footer);
     },
     bilibili(c){
-      setup(c,{avatar:40,gap:12,body:15,line:24,font:'-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial,sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#9499a0':'#9499a0';c.root.style.color=dark?'#e3e5e7':'#18191c';
-      content.append(e('div',{fontSize:px(13),fontWeight:'500',lineHeight:px(20),color:dark?'#c9ccd0':'#61666d'},c.handle),body(c,{marginTop:px(4)}));
-      const bar=actions(c,{marginTop:px(4),columnGap:px(20)});const down=lineIcon('thumb',14*c.scale);down.style.transform='rotate(180deg)';
-      bar.append(e('span',{},state.date),action(c,'thumb',state.likes,{size:14}),down,e('span',{},'回复'),action(c,'more',undefined,{size:16,marginLeft:'auto'}));content.append(bar);
+      setup(c,{avatar:48,gap:12,body:16,line:26,font:'-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif'});const {state,content,px,dark}=c;c.muted='#9499a0';c.root.style.color=dark?'#e3e5e7':'#18191c';
+      content.append(e('div',{fontSize:px(13),fontWeight:'500',lineHeight:px(30),color:dark?'#c9ccd0':'#61666d'},c.handle),body(c,{marginTop:px(4)}));
+      const bar=actions(c,{marginTop:px(3),columnGap:px(20),fontSize:px(13),lineHeight:px(19.5),minHeight:px(25.5)});
+      bar.append(e('span',{},state.date),action(c,'thumb',state.likes,{size:16}),sourceIcon(c,'down',16),e('span',{},'回复'),action(c,'more',undefined,{size:16,marginLeft:'auto',marginRight:px(20)}));content.append(bar);
       if(state.replies>0)content.append(e('div',{fontSize:px(13),lineHeight:px(24),marginTop:px(8),color:c.muted},`共${state.replies}条回复，点击查看`));
       content.style.paddingBottom=px(14);content.style.borderBottom=`1px solid ${dark?'#333':'#e3e5e7'}`;
     },
     weibo(c){
-      setup(c,{avatar:30,gap:10,body:14,line:23,font:'Arial,"Microsoft YaHei",sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#888':'#939393';
-      const paragraph=e('div',{lineHeight:px(23)});paragraph.append(e('span',{color:dark?'#e99b54':'#eb7350'},c.handle+'：'),c.text);content.append(paragraph);
-      const footer=actions(c,{marginTop:px(8),columnGap:px(8)});footer.append(e('span',{marginRight:'auto'},state.date),e('span',{},'举报'),e('span',{color:dark?'#444':'#d9d9d9'},'|'),action(c,'comment',state.replies||'回复',{size:14}),e('span',{color:dark?'#444':'#d9d9d9'},'|'),action(c,'thumb',state.likes,{size:14}));content.append(footer);
+      setup(c,{avatar:30,gap:10,body:13,line:22,font:'system-ui,-apple-system,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#797979':'#939393';c.root.style.color=dark?'#bfbfbf':'#333';content.style.marginTop=px(-2);
+      const paragraph=e('div',{lineHeight:px(22)});paragraph.append(e('span',{color:dark?'#d36747':'#eb7350'},c.handle+':'),c.text);content.append(paragraph);
+      const footer=actions(c,{marginTop:px(1),columnGap:'0',fontSize:px(13),lineHeight:px(22)});footer.append(e('span',{marginRight:'auto'},state.date));
+      const tools=actions(c,{columnGap:'0',rowGap:px(4),marginLeft:'auto'});
+      for(const [name,size] of [['report',13],['translate',16],['repeat',12],['comment',13]])tools.append(action(c,name,undefined,{size,width:px(32),height:px(22),justifyContent:'center'}));
+      tools.append(action(c,'thumb',state.likes,{size:13,paddingLeft:px(8)}));footer.append(tools);content.append(footer);
       if(state.replies>0)content.append(e('div',{marginTop:px(8),padding:px(8)+' '+px(12),background:dark?'#262626':'#f2f2f5',fontSize:px(12),lineHeight:px(20),color:dark?'#bbb':'#808080'},`共${state.replies}条回复，点击查看`));
       content.style.paddingBottom=px(12);content.style.borderBottom=`1px solid ${dark?'#333':'#f2f2f5'}`;
     },
     xiaohongshu(c){
-      setup(c,{avatar:40,gap:12,body:14,line:22,font:'-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial,sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#ffffff60':'#33333399';c.root.style.color=dark?'#ffffffcc':'#333';
-      content.append(e('div',{fontSize:px(12),lineHeight:px(16),color:c.muted},c.handle),body(c,{marginTop:px(4)}),e('div',{fontSize:px(12),lineHeight:px(16),marginTop:px(8),color:c.muted},state.date));
-      const bar=actions(c,{marginTop:px(8),columnGap:px(24)});bar.append(action(c,'heart',state.likes||'赞',{size:16}),action(c,'comment',state.replies||'回复',{size:16}));content.append(bar);
+      setup(c,{avatar:40,gap:12,body:14,line:19.6,font:'system-ui,-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial,sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#ffffff60':'#33333399';c.root.style.color=dark?'#ffffffcc':'#333';
+      const header=actions(c,{minHeight:px(20),fontSize:px(14),lineHeight:px(18),color:c.muted,flexWrap:'nowrap',columnGap:px(8)});
+      header.append(e('span',{minWidth:'0',flex:'1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},c.handle),sourceIcon(c,'more',16));
+      content.append(header,body(c,{marginTop:px(4)}),e('div',{fontSize:px(12),lineHeight:px(16),marginTop:px(8),color:c.muted},state.date));
+      const bar=actions(c,{marginTop:px(8),columnGap:px(12),lineHeight:px(16)});bar.append(action(c,'heart',state.likes||'赞',{size:16}),action(c,'comment',state.replies||'回复',{size:16}));content.append(bar);
       if(state.replies>0)content.append(e('div',{fontSize:px(12),lineHeight:px(16),marginTop:px(12),color:dark?'#8fb5eb':'#13386c'},`展开 ${state.replies} 条回复 ⌄`));
     },
     futaba(c){
-      const {state,root,row,px,dark}=c;root.style.fontFamily='"MS PGothic","ＭＳ Ｐゴシック",sans-serif';root.style.fontSize=px(16);root.style.lineHeight='normal';
+      const {state,root,row,px,dark}=c;root.style.fontFamily='"Noto Sans KR","MS PGothic",sans-serif';root.style.fontSize=px(16);root.style.lineHeight='normal';
       root.style.backgroundColor=dark?`rgba(31,28,25,${state.opacity/100})`:`rgba(255,255,238,${state.opacity/100})`;
-      row.replaceChildren();row.style.gap=px(4);row.style.alignItems='stretch';row.append(e('div',{color:dark?'#ad9a8c':'#c5b1a5',fontSize:px(16)},'＞'));
-      const box=e('div',{background:dark?'#3e3028':'#f0e0d6',padding:px(3)+' '+px(6),flex:'1',minWidth:'0',maxWidth:'100%'});
-      const header=actions(c,{fontSize:px(16),lineHeight:px(22),columnGap:px(5),color:dark?'#eee':'#800000'});
-      header.append(e('span',{fontWeight:'700',color:dark?'#6fcf82':'#117743'},c.handle),e('span',{},state.date),e('span',{},'No.'+state.postNumber),e('span',{fontSize:px(12),color:dark?'#9cb9ff':'#0000ee'},'del'),e('span',{fontSize:px(12),color:dark?'#9cb9ff':'#0000ee'},`そうだねx${state.likes}`));
-      box.append(header,body(c,{margin:px(16)+' '+px(24),color:dark?'#eee':'#800000',lineHeight:px(23)}));row.append(box);
+      row.replaceChildren();row.style.gap=px(2);row.style.alignItems='stretch';row.append(e('div',{color:dark?'#ad9a8c':'#c5b1a5',fontSize:px(16),flex:'none',padding:px(1)},'…'));
+      const box=e('div',{background:dark?'#3e3028':'#f0e0d6',padding:px(1)+' '+px(8)+' '+px(1)+' '+px(1),flex:'1',minWidth:'0',maxWidth:'100%'});
+      const header=e('div',{fontSize:px(16),lineHeight:px(24),color:dark?'#eee':'#800000',overflowWrap:'anywhere'});
+      header.append(e('span',{fontSize:px(13)},String(state.replyIndex||1)),e('span',{margin:'0 '+px(5),color:dark?'#e9a6a6':'#cc1105',fontWeight:'700'},'無題'),document.createTextNode('Name'),e('span',{margin:'0 '+px(5),fontWeight:'700',color:dark?'#6fcf82':'#117743'},c.handle+' '),e('span',{margin:'0 '+px(5)},state.date),e('span',{margin:'0 '+px(5)},'No.'+state.postNumber),e('span',{marginLeft:px(8),color:dark?'#9cb9ff':'#0000ee'},state.likes>0?`そうだねx${state.likes}`:'+'));
+      const inset=Math.min(40*c.scale,Math.max(0,(state.width-2*state.horizontal-40*c.scale)/4));
+      box.append(header,body(c,{margin:px(16)+' '+inset+'px',color:dark?'#eee':'#800000',lineHeight:px(24)}));row.append(box);
     },
     fivech(c){
-      const {state,root,row,px,dark}=c;root.style.fontFamily='Arial,"MS PGothic",sans-serif';root.style.color=dark?'#ddd':'#000';row.replaceChildren();row.style.display='block';
-      const blue=dark?'#a9bcff':'#0000cc';const header=actions(c,{color:blue,fontSize:px(16),lineHeight:px(24),columnGap:px(12)});
-      header.append(e('span',{},'▾ '+String(state.postNumber).padStart(4,'0')),e('span',{fontWeight:'700',color:dark?'#cfa4ff':'#a64de0'},c.handle));row.append(header);
-      row.append(e('div',{fontSize:px(16),lineHeight:px(24),color:blue,paddingLeft:px(16),overflowWrap:'anywhere'},state.date));
-      row.append(body(c,{fontFamily:'"MS PGothic","ＭＳ Ｐゴシック",monospace',fontSize:px(14),lineHeight:px(21),marginTop:px(4)}));
+      const {state,root,row,px,dark}=c;root.style.fontFamily='Arial,"Hiragino Kaku Gothic ProN",sans-serif';root.style.color=dark?'#ddd':'#000';row.replaceChildren();row.style.display='block';row.style.padding=px(8)+' '+px(3.2);
+      const blue=dark?'#a9bcff':'#0e0e6e';const header=actions(c,{color:blue,fontSize:px(12),lineHeight:px(19.2),columnGap:px(12)});
+      header.append(e('span',{},String(state.postNumber)),e('span',{fontWeight:'700',color:dark?'#cfa4ff':'#a64de0'},c.handle),e('span',{marginLeft:'auto',color:dark?'#cfa4ff':'#9b4dca'},'垢版 | 大砲'));row.append(header);
+      const meta=actions(c,{fontSize:px(10.8),lineHeight:px(19.2),color:blue,paddingLeft:px(10.8),columnGap:px(12)});meta.append(e('span',{minWidth:'0'},state.date),e('span',{fontSize:px(12),marginLeft:'auto',minWidth:'0'},'ID:'+(state.boardId||'aB3cD4eF0')));row.append(meta);
+      row.append(body(c,{fontSize:px(16),fontWeight:'300',lineHeight:px(25.6)}));
     }
   };
   function build({state,avatar}) {
@@ -177,10 +203,10 @@
     }else if(state.platform==='dc'){
       root.style.fontFamily='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",Arial,Gulim,sans-serif';
       row.replaceChildren();row.style.cssText=`display:grid;grid-template-columns:minmax(0,${152*scale}px) minmax(0,1fr) auto;column-gap:${33*scale}px;align-items:start;padding:${9*scale}px ${3*scale}px ${7*scale}px;border-top:1px solid ${dark?'#444':'#eee'};border-bottom:1px solid ${dark?'#444':'#eee'}`;
-      row.append(e('div',{fontSize:px(12),lineHeight:px(13),paddingTop:px(3),color:dark?'#aaa':'#777',overflowWrap:'anywhere'},handle));
+      row.append(e('div',{fontSize:px(13),lineHeight:px(13),paddingTop:px(3),color:dark?'#aaa':'#777',overflowWrap:'anywhere'},handle));
       text.style.fontSize=px(13);text.style.lineHeight=px(20);row.append(text);
       row.append(e('div',{fontSize:px(12),color:dark?'#aaa':'#999',whiteSpace:'nowrap',paddingTop:px(1)},state.date));
-      if(state.width-2*state.horizontal<520*scale){row.style.gridTemplateColumns='minmax(0,1fr) auto';row.style.columnGap=px(12);row.style.rowGap=px(6);text.style.gridColumn='1 / -1';text.style.gridRow='2';row.lastElementChild.style.gridColumn='2';row.lastElementChild.style.gridRow='1';}
+      if(state.width-2*state.horizontal<520*scale){row.style.gridTemplateColumns='minmax(0,1fr) minmax(0,1fr)';row.style.columnGap=px(12);row.style.rowGap=px(6);text.style.gridColumn='1 / -1';text.style.gridRow='2';row.lastElementChild.style.gridColumn='2';row.lastElementChild.style.gridRow='1';row.lastElementChild.style.whiteSpace='normal';row.lastElementChild.style.overflowWrap='anywhere';row.lastElementChild.style.textAlign='right';}
     }else if(yt){
       row.style.position='relative';
       const menu=e('button',{position:'absolute',right:'0',top:px(-12),width:px(40),height:px(40),minHeight:'0',minWidth:'0',padding:px(8),display:'flex',alignItems:'center',justifyContent:'center',border:'0',borderRadius:'50%',background:'transparent',color:ink});menu.type='button';menu.dataset.commentMenu='';menu.setAttribute('aria-label','댓글 작업 메뉴');menu.setAttribute('aria-haspopup','menu');menu.setAttribute('aria-expanded','false');menu.append(icon('kebab',24*scale));row.append(menu);
@@ -193,10 +219,11 @@
       const dislike=e('span',{width:px(32),display:'flex',justifyContent:'center'});dislike.append(icon('down',18*scale));actions.append(dislike,e('span',{padding:'0 '+px(12),fontWeight:'500'},'답글'));content.append(actions);
       if(state.replies>0){const reply=e('div',{display:'flex',alignItems:'center',minHeight:px(36),gap:px(8),fontWeight:'500',fontSize:px(14),marginTop:px(8)});reply.append(e('span',{},`답글 ${state.replies}개`),icon('chevron',24*scale));content.append(reply);}
     }else{
-      content.style.paddingTop=px(7);
-      const body=e('div',{lineHeight:px(18)});body.append(e('span',{fontSize:px(13),fontWeight:'600',marginRight:px(4)},handle),text);content.append(body);
+      row.style.gap=px(12);pic.style.marginTop='0';
+      const header=e('div',{display:'flex',alignItems:'baseline',flexWrap:'wrap',gap:px(4),fontSize:px(14),lineHeight:px(18)});header.append(e('span',{fontWeight:'600'},handle),e('span',{color:dark?'#a8a8a8':'#737373'},state.date));content.append(header);
+      const body=e('div',{lineHeight:px(18)});body.append(text);content.append(body);
       const actions=e('div',{display:'flex',alignItems:'center',flexWrap:'wrap',gap:px(12),marginTop:px(8),fontSize:px(12),lineHeight:px(16),color:dark?'#a8a8a8':'#737373'});
-      actions.append(e('span',{},state.date),e('span',{fontWeight:'600'},`좋아요 ${state.likes.toLocaleString()}개`),e('span',{fontWeight:'600'},'답글 달기'));content.append(actions);
+      if(state.likes>0)actions.append(e('span',{fontWeight:'600'},`좋아요 ${state.likes.toLocaleString()}개`));actions.append(e('span',{fontWeight:'600'},'답글 달기'));content.append(actions);
       if(state.replies>0){const reply=e('div',{display:'flex',alignItems:'center',gap:px(16),marginTop:px(16),fontSize:px(12),fontWeight:'600',color:dark?'#a8a8a8':'#737373'});reply.append(e('span',{width:px(24),borderTop:'1px solid currentColor'}),e('span',{},`답글 보기(${state.replies}개)`));content.append(reply);}
       const heart=e('div',{flex:'none',paddingTop:px(16)});heart.append(icon('heart',12*scale));row.append(heart);
     }

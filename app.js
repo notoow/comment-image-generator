@@ -44,7 +44,8 @@
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
     const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
-    const numeric = new Set(['likes','replies','postNumber','opacity','width','height','font','padding','horizontal']);
+    state.replyIndex=1;state.boardId='aB3cD4eF0';
+    const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
     let previousOpacity = 100;
@@ -73,6 +74,7 @@
       state.text = state.text.slice(0,4000);state.handle=state.handle.slice(0,60);state.date=state.date.slice(0,30);
       for(const key of ['likes','replies']) state[key]=Math.max(0,Math.min(99999,Math.floor(state[key])));
       state.postNumber=Math.max(1,Math.min(999999999,Math.floor(state.postNumber)));
+      state.replyIndex=Math.max(1,Math.min(999999,Math.floor(state.replyIndex)));state.boardId=state.boardId.slice(0,30);
       for (const input of all('[data-key]')) input.value = input.dataset.key==='height'&&!state.height?'':String(state[input.dataset.key]);
     }
     applySaved(savedFor(index));
@@ -157,6 +159,7 @@
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
       find('[data-youtube-only]').hidden=state.platform!=='youtube';
+      find('[data-futaba-only]').hidden=state.platform!=='futaba';find('[data-fivech-only]').hidden=state.platform!=='fivech';
       find('[data-initials-field]').hidden=state.avatarMode!=='initials';
       const photo=!!uploaded&&['original','mosaic','blur'].includes(state.avatarMode);
       find('[data-key="avatarColor"]').disabled=photo;find('[data-avatar-color-value]').textContent=state.avatarColor.toUpperCase();
@@ -172,7 +175,7 @@
       find('[data-transparent]').checked=state.opacity===0;
       find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;
       find('[data-opacity]').textContent=state.opacity+'%';find('[data-padding]').textContent=state.padding+' px';find('[data-horizontal]').textContent=state.horizontal+' px';
-      find('.cs-platform-name').textContent=names[state.platform];find('[data-status]').textContent=['youtube','instagram','dc'].includes(state.platform)?'실제 데스크톱 댓글의 측정값 반영 · 전체 화면 일치 검증 진행 중':'플랫폼별 웹 댓글 레이아웃 적용 · 원본과 세부 일치 검증 진행 중';
+      find('.cs-platform-name').textContent=names[state.platform];const limited={tieba:'보안 확인 화면으로 원본 댓글 실측 미완료',threads:'계정 확인 화면으로 원본 댓글 실측 미완료',douyin:'원본 댓글 로딩을 확인하지 못해 실측 미완료'};find('[data-status]').textContent=limited[state.platform]||'실제 웹 댓글의 아이콘·배치 실측 반영 · 브라우저와 글꼴에 따라 차이 있음';
       find('[data-download]').disabled=true;
       let rendered=false;
       try {

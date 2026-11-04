@@ -1,5 +1,7 @@
 # Native comment layout audit — 2026-11-04
 
+> Updated platform-by-platform measurements and corrections: [platform-audit.md](platform-audit.md). The historical status below is superseded where that audit provides a newer source.
+
 The previous renderer used one shared canvas layout and Lucide reaction symbols.
 Its distinct PNG hashes did not demonstrate source-site fidelity. That verification
 was insufficient and is superseded by source DOM and visual comparison.

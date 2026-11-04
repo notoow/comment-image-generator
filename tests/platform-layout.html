@@ -1,0 +1,36 @@
+<!doctype html><meta charset="utf-8"><title>Platform layout verification</title><base href="../">
+<link rel="stylesheet" href="styles.css">
+<script src="assets/vendor/html-to-image-1.11.13.js"></script>
+<script src="native-icons.js"></script><script src="native-templates.js"></script>
+<style>body{font:14px Arial;margin:20px}#cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.sample{border:1px solid #ddd;overflow:auto}.host{position:relative}pre{white-space:pre-wrap}button{padding:12px}canvas{max-width:100%;height:auto}</style>
+<h1>Platform geometry and export checks</h1><button id="run">Run geometry matrix</button><select id="theme" aria-label="Sample theme"><option>light</option><option>dark</option></select><label><input id="zero" type="checkbox">Zero reactions</label><button id="png">Export platform samples</button><pre id="result">Ready</pre><div id="cards"></div>
+<script>
+const ids=['youtube','instagram','tiktok','reddit','x','facebook','threads','tieba','bilibili','weibo','xiaohongshu','douyin','futaba','fivech','dc'];
+const avatar=document.createElement('canvas');avatar.width=avatar.height=96;const ag=avatar.getContext('2d');ag.fillStyle='#005c98';ag.fillRect(0,0,96,96);ag.fillStyle='white';ag.font='44px Arial';ag.textAlign='center';ag.fillText('KS',48,63);
+const base={platform:'youtube',theme:'light',font:14,width:650,height:0,padding:24,horizontal:24,opacity:100,handle:'long_username_ABCDEFGHIJKLMNOPQRSTUVWXYZ_가나다라마',date:'2026-11-04',likes:99999999,replies:3,postNumber:123456,youtubeMode:'collapsed',text:'긴 댓글의 줄바꿈과 아이콘 위치를 확인합니다.\nUnbroken_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n👨‍👩‍👧‍👦 다음 줄도 자연스럽게 이어집니다.'};
+document.querySelector('#run').onclick=async()=>{
+ await document.fonts.ready;const results=[];document.querySelector('#cards').replaceChildren();
+ for(const platform of ids)for(const theme of ['light','dark'])for(const width of [240,261,320,480,960]){
+  const host=document.createElement('div');host.className='host';document.body.append(host);
+  const state={...base,platform,theme,width};
+  try{const size=CommentNative.preview({state,avatar,host});const root=host.firstElementChild;const r=root.getBoundingClientRect();
+   const escapes=[...root.querySelectorAll('*')].filter(n=>{const b=n.getBoundingClientRect();return b.width&&b.height&&(b.left<r.left-.6||b.right>r.right+.6||b.top<r.top-.6||b.bottom>r.bottom+.6)}).map(n=>({tag:n.tagName,text:n.textContent.slice(0,25),left:n.getBoundingClientRect().left-r.left,right:n.getBoundingClientRect().right-r.right}));
+   results.push({platform,theme,width,...size,escapes});
+  }catch(error){results.push({platform,theme,width,error:error.message})}finally{host.remove()}
+ }
+ for(const platform of ids){const host=document.createElement('div');document.body.append(host);try{const size=CommentNative.preview({state:{...base,platform,width:240,font:32,horizontal:64},avatar,host});results.push({platform,case:'large-font',...size})}catch(error){results.push({platform,case:'large-font',error:error.message})}finally{host.remove()}}
+ for(const platform of ['x','reddit','threads'])for(const width of [240,261,320]){const host=document.createElement('div');document.body.append(host);try{CommentNative.preview({state:{...base,platform,width,handle:'notoow',likes:24,text:'짧은 댓글'},avatar,host});const icons=[...host.querySelectorAll('[data-native-actions] svg')];const centers=icons.map(n=>{const r=n.getBoundingClientRect();return r.top+r.height/2});results.push({platform,width,case:'action-row',error:Math.max(...centers)-Math.min(...centers)>1?'Normal action icons wrap to different lines':undefined})}finally{host.remove()}}
+ document.querySelector('#result').textContent=JSON.stringify({cases:results.length,failures:results.filter(n=>n.error||n.overflow||n.escapes?.length),results},null,2);document.querySelector('#result').dataset.done='true';
+};
+document.querySelector('#png').onclick=async()=>{
+ const results=[];document.querySelector('#cards').replaceChildren();
+ for(const platform of ids)for(const width of [261,650]){
+  const section=document.createElement('section');section.className='sample';const title=document.createElement('h3');title.textContent=platform+' '+width;section.append(title);document.querySelector('#cards').append(section);
+  const canvas=document.createElement('canvas');section.append(canvas);
+  const theme=document.querySelector('#theme').value,zero=document.querySelector('#zero').checked;
+  const state={...base,platform,theme,width,handle:'notoow',date:'2일 전',likes:zero?0:24,replies:zero?0:3,text:'설명이 정말 깔끔해서 끝까지 보게 되네요.\n다음 영상도 기대할게요!'};
+  try{const size=await CommentNative.render({state,avatar,target:canvas,guides:false});const img=document.createElement('img');img.dataset.export=platform+'-'+width+'-'+theme+(zero?'-zero':'');img.src=canvas.toDataURL();img.hidden=true;section.append(img);results.push({platform,theme,zero,width,...size,pngWidth:canvas.width,pngHeight:canvas.height})}catch(error){results.push({platform,width,error:error.message})}
+ }
+ document.querySelector('#result').textContent=JSON.stringify(results,null,2);document.querySelector('#result').dataset.exportDone='true';
+};
+</script>
