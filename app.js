@@ -43,7 +43,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyText:'',date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[{handle:'@xiomaralopez7410',text:'LESBIANS (me) LOVE TVT!!!',translation:'한국어로 번역',date:'1개월 전',likes:1,avatarColor:'#689f38',avatarText:'X'}],date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
     state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
@@ -58,6 +58,8 @@
         else if (typeof data[key] === typeof state[key]) state[key] = data[key];
       }
       if (!platforms.some(p=>p.id===state.platform)) state.platform = 'tiktok';
+      if(!Array.isArray(state.replyItems))state.replyItems=state.replyText?[{handle:'@notoow',text:state.replyText,translation:'',date:'방금 전',likes:0,avatarColor:'#689f38',avatarText:'N'}]:[];
+      state.replyItems=state.replyItems.slice(0,20).map((item,index)=>({handle:String(item.handle||'@notoow').slice(0,60),text:String(item.text||'').slice(0,2000),translation:String(item.translation||'').slice(0,1000),date:String(item.date||'방금 전').slice(0,30),likes:Math.max(0,Math.min(99999,Number(item.likes)||0)),avatarColor:/^#[0-9a-f]{6}$/i.test(item.avatarColor||'')?item.avatarColor:'#689f38',avatarText:String(item.avatarText||'N').slice(0,3),avatarSeed:Number(item.avatarSeed)||index}));
       if (!CommentRandom.styles.includes(state.nameStyle)) state.nameStyle = 'phrase';
       if (!/^#[0-9a-f]{6}$/i.test(state.avatarColor)) state.avatarColor='#5f6dc5';
       if (!['default','random','initials','original','mosaic','blur'].includes(state.avatarMode)) state.avatarMode='default';
@@ -79,6 +81,20 @@
       for (const input of all('[data-key]')) input.value = input.dataset.key==='height'&&!state.height?'':String(state[input.dataset.key]);
     }
     applySaved(savedFor(index));
+    const replyList=find('[data-reply-list]');
+    function renderReplyEditors(){
+      replyList.replaceChildren();
+      state.replyItems.forEach((item,i)=>{
+        const card=document.createElement('fieldset');card.className='cs-reply-editor';card.dataset.replyIndex=i;
+        const legend=document.createElement('legend');legend.textContent=`답글 ${i+1}`;card.append(legend);
+        const field=(key,label,value,tag='input')=>{const wrap=document.createElement('label');wrap.className='cs-field';const title=document.createElement('span');title.className='cs-field-title';title.textContent=label;const control=document.createElement(tag);control.dataset.replyField=key;control.value=value;if(tag==='textarea'){control.rows=3;control.maxLength=key==='text'?2000:1000;}else control.maxLength=key==='handle'?60:30;wrap.append(title,control);card.append(wrap);};
+        field('handle','아이디',item.handle);field('text','답글 내용',item.text,'textarea');field('translation','번역 문구',item.translation);field('date','작성 시점',item.date);field('likes','좋아요',item.likes);
+        const profile=document.createElement('div');profile.className='cs-reply-profile';const avatar=document.createElement('input');avatar.type='color';avatar.value=item.avatarColor;avatar.dataset.replyField='avatarColor';avatar.setAttribute('aria-label',`답글 ${i+1} 프로필 색상`);const initials=document.createElement('input');initials.value=item.avatarText;initials.maxLength=3;initials.dataset.replyField='avatarText';initials.setAttribute('aria-label',`답글 ${i+1} 프로필 이니셜`);profile.append(avatar,initials);card.append(profile);
+        for(const [action,label] of [['profile','프로필 랜덤'],['name','아이디 랜덤'],['remove','삭제']]){const button=document.createElement('button');button.type='button';button.dataset.replyAction=action;button.textContent=label;card.append(button);}
+        replyList.append(card);
+      });
+    }
+    renderReplyEditors();
     function avatarSource() {
       const tile = document.createElement('canvas');tile.width=tile.height=100;
       const g=tile.getContext('2d');
@@ -160,7 +176,8 @@
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
       find('[data-youtube-only]').hidden=state.platform!=='youtube';
-      find('[data-reply-text-field]').hidden=!['youtube','instagram'].includes(state.platform);
+      find('[data-replies-editor]').hidden=!['youtube','instagram'].includes(state.platform);
+      find('[data-replies-field]').hidden=['youtube','instagram'].includes(state.platform);
       find('[data-futaba-only]').hidden=state.platform!=='futaba';find('[data-fivech-only]').hidden=state.platform!=='fivech';
       find('[data-tieba-only]').hidden=state.platform!=='tieba';find('[data-region-field]').hidden=state.platform!=='douyin';
       find('[data-initials-field]').hidden=state.avatarMode!=='initials';
@@ -177,7 +194,7 @@
       find('[data-guide]').setAttribute('aria-pressed',String(state.guides));
       find('[data-transparent]').checked=state.opacity===0;
       find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;
-      find('[data-reply-count]').textContent=`${state.replyText.length.toLocaleString()} / 2,000`;
+      state.replies=['youtube','instagram'].includes(state.platform)?state.replyItems.length:state.genericReplies;
       find('[data-opacity]').textContent=state.opacity+'%';find('[data-padding]').textContent=state.padding+' px';find('[data-horizontal]').textContent=state.horizontal+' px';
       find('.cs-platform-name').textContent=names[state.platform];find('[data-status]').textContent=['tieba','threads','douyin'].includes(state.platform)?'실제 웹 댓글 캡처와 비교해 재현 · 캡처 시점·글꼴에 따라 차이 있음':'실제 웹 댓글의 아이콘·배치 실측 반영 · 브라우저와 글꼴에 따라 차이 있음';
       find('[data-download]').disabled=true;
@@ -201,17 +218,19 @@
     for(const input of all('[data-key]')) input.addEventListener('input',()=>{
       const key=input.dataset.key;if(key==='avatarMode')uploadVersion++;state[key]=numeric.has(key)?Math.max(Number(input.min||0),Math.min(Number(input.max||99999),Number(input.value)||0)):input.value;
       if(['likes','replies'].includes(key))state[key]=Math.floor(state[key]);
+      if(key==='replies')state.genericReplies=state[key];
       queueRender();persist();
     });
     liveHost.addEventListener('input',event=>{
-      const target=event.target.closest('[data-comment-text],[data-reply-text]');if(!target)return;
-      const key=target.hasAttribute('data-reply-text')?'replyText':'text',value=target.innerText.replace(/\r/g,'');
-      state[key]=value;const field=find(`[data-key="${key}"]`);field.value=value;
-      if(key==='text')find('[data-count]').textContent=`${value.length.toLocaleString()} / 4,000`;
-      else find('[data-reply-count]').textContent=`${value.length.toLocaleString()} / 2,000`;
-      find('[data-download]').disabled=!value.trim()&&!state.text.trim();persist();
+      const target=event.target.closest('[data-comment-text],[data-reply-item]');if(!target)return;
+      if(target.hasAttribute('data-comment-text')){state.text=target.innerText.replace(/\r/g,'');find('[data-key="text"]').value=state.text;find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;}
+      else{const item=state.replyItems[Number(target.dataset.replyItem)],key=target.dataset.replyField;if(!item||!key)return;item[key]=target.innerText.replace(/\r/g,'');const control=replyList.querySelector(`[data-reply-index="${target.dataset.replyItem}"] [data-reply-field="${key}"]`);if(control)control.value=item[key];}
+      find('[data-download]').disabled=!state.text.trim();persist();
     });
-    liveHost.addEventListener('focusout',event=>{if(event.target.matches('[data-comment-text],[data-reply-text]'))queueRender();});
+    liveHost.addEventListener('focusout',event=>{if(event.target.matches('[data-comment-text],[data-reply-item]'))queueRender();});
+    replyList.addEventListener('input',event=>{const control=event.target.closest('[data-reply-field]');if(!control)return;const card=control.closest('[data-reply-index]'),item=state.replyItems[Number(card.dataset.replyIndex)];if(!item)return;item[control.dataset.replyField]=control.dataset.replyField==='likes'?Math.max(0,Number(control.value)||0):control.value;persist();queueRender();});
+    replyList.addEventListener('click',event=>{const button=event.target.closest('[data-reply-action]');if(!button)return;const card=button.closest('[data-reply-index]'),i=Number(card.dataset.replyIndex),item=state.replyItems[i];if(button.dataset.replyAction==='remove')state.replyItems.splice(i,1);else if(button.dataset.replyAction==='profile'){item.avatarSeed=CommentRandom.avatarSeed(item.avatarSeed);item.avatarColor=palette[item.avatarSeed%palette.length];item.avatarText=Array.from(item.handle.replace(/^@/,'').toUpperCase())[0]||'N';}else if(button.dataset.replyAction==='name')item.handle=CommentRandom.name(state.nameStyle,item.handle);renderReplyEditors();render();persist();});
+    find('[data-add-reply]').addEventListener('click',()=>{state.replyItems.push({handle:'@notoow',text:'',translation:'',date:'방금 전',likes:0,avatarColor:palette[state.replyItems.length%palette.length],avatarText:'N'});renderReplyEditors();render();persist();});
     all('[data-platform]').forEach(b=>b.addEventListener('click',()=>{state.platform=b.dataset.platform;render();find('.cs-platform-dialog').close();persist();}));
     find('[data-open-platform]').addEventListener('click',()=>find('.cs-platform-dialog').showModal());
     find('[data-close-platform]').addEventListener('click',()=>find('.cs-platform-dialog').close());
