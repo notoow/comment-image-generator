@@ -52,6 +52,7 @@
     const canvas = find('.cs-image');
     const avatarCanvas = find('.cs-avatar-mini');
     function applySaved(data) {
+      if(!('genericReplies' in data)&&Number.isFinite(Number(data.replies)))state.genericReplies=Number(data.replies);
       for (const key of Object.keys(state)) {
         if (!(key in data)) continue;
         if (numeric.has(key) && Number.isFinite(Number(data[key]))) state[key] = Number(data[key]);
