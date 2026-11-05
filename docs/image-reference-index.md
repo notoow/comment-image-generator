@@ -26,3 +26,22 @@ It must not guide the desktop renderer.
    zero reactions, large counts, narrow widths and transparency separately.
 5. Verify downloaded PNG dimensions and visual output. Different file hashes are
    not evidence of visual fidelity. Screenshot-only estimates remain unverified.
+
+
+## Follow-up — 2026-11-05
+
+[Detailed comparison and changes](capture-comparison.md) supersede the earlier
+incomplete status for Threads, Douyin and Tieba. Accepted sources:
+
+- Threads: [Sendible](https://www.sendible.com/insights/social-media-for-car-dealerships),
+  visible May 28, 2025 reply thread; light desktop layout and action outlines.
+- Douyin: [CSDN](https://blog.csdn.net/leyang0910/article/details/140246167),
+  dark desktop video comment sidebar, with reply/share/heart/broken-heart row.
+- Tieba: [3DM](https://www.3dmgame.com/original/3743567.html),
+  April 15, 2022 desktop floor and expanded nested replies. This is a different,
+  verified desktop image from the rejected mobile image above.
+
+Rejected this pass: a 10100 image showing a Douyin share-recipient popup (not a
+comment panel); Sprout's 2023 Threads capture as the primary guide because its
+separate reaction summary predates the accepted 2025 layout; app-only screenshots.
+The sources establish screenshot-relative shapes/structure, not current DOM metrics.

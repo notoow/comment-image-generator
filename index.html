@@ -25,14 +25,15 @@
 <meta name="twitter:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261104-platform-audit2">
+<link rel="stylesheet" href="styles.css?v=20261105-capture1">
 <script src="assets/vendor/lucide-1.17.0.js" defer></script>
 <script src="assets/vendor/html-to-image-1.11.13.js" defer></script>
-<script src="native-icons.js?v=20261104-platform-audit2" defer></script>
-<script src="native-templates.js?v=20261104-platform-audit2" defer></script>
-<script src="random-generators.js?v=20261104-platform-audit2" defer></script>
-<script src="resize-controller.js?v=20261104-platform-audit2" defer></script>
-<script src="app.js?v=20261104-platform-audit2" defer></script>
+<script src="native-icons.js?v=20261105-capture1" defer></script>
+<script src="capture-icons.js?v=20261105-capture1" defer></script>
+<script src="native-templates.js?v=20261105-capture1" defer></script>
+<script src="random-generators.js?v=20261105-capture1" defer></script>
+<script src="resize-controller.js?v=20261105-capture1" defer></script>
+<script src="app.js?v=20261105-capture1" defer></script>
   <meta property="og:image:secure_url" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 </head>
 <body>
@@ -60,6 +61,8 @@
               <label class="cs-field cs-text-field"><span class="cs-field-title">댓글 내용 <output data-count>0 / 4,000</output></span><textarea data-key="text" rows="4" maxlength="4000" spellcheck="false">설명이 정말 깔끔해서 끝까지 보게 되네요.
 다음 영상도 기대할게요!</textarea></label>
               <label class="cs-field" data-youtube-only hidden><span class="cs-field-title">유튜브 긴 댓글</span><select data-key="youtubeMode" aria-label="유튜브 댓글 펼침 상태"><option value="collapsed">접힌 상태 · 4줄</option><option value="expanded">펼친 상태</option></select><span class="cs-help">미리보기의 자세히 알아보기·간략히를 눌러도 바뀝니다.</span></label>
+              <label class="cs-field" data-tieba-only hidden><span class="cs-field-title">바이두 댓글 형태</span><select data-key="tiebaMode" aria-label="바이두 댓글 형태"><option value="floor">본문 댓글 · 楼层</option><option value="nested">대댓글 · 楼中楼</option></select></label>
+              <label class="cs-field" data-region-field hidden><span class="cs-field-title">지역 · IP 위치 (선택)</span><input data-key="region" value="" maxlength="20" placeholder="예: 安徽" autocomplete="off"></label>
               <label class="cs-field"><span class="cs-field-title">작성 시점</span><input data-key="date" value="9일 전" maxlength="30" autocomplete="off"></label>
               <div class="cs-pair" data-reaction-fields><label class="cs-field" data-likes-field><span class="cs-field-title" data-likes-label>좋아요</span><input data-key="likes" type="number" value="24" min="0" max="99999"></label><label class="cs-field" data-replies-field><span class="cs-field-title">답글</span><input data-key="replies" type="number" value="3" min="0" max="99999"></label></div>
               <label class="cs-field" data-board-field hidden><span class="cs-field-title">글 번호</span><input data-key="postNumber" type="number" value="123456" min="1" max="999999999"></label>

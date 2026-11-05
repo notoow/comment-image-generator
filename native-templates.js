@@ -86,11 +86,12 @@
     douyin(c){
       setup(c,{avatar:40,gap:8,body:16,line:24});const {state,root,content,px,dark}=c;
       root.style.backgroundColor=dark?`rgba(38,38,38,${state.opacity/100})`:`rgba(255,255,255,${state.opacity/100})`;
-      root.style.color=dark?'#ffffffe6':'#161823';c.muted=dark?'#ffffff80':'#16182380';
+      root.style.color=dark?'#ffffffe6':'#161823';c.muted=dark?'#ffffff99':'#16182380';
       content.append(e('div',{fontSize:px(14),lineHeight:px(22),color:c.muted},c.handle),body(c,{marginTop:px(4)}));
-      content.append(e('div',{fontSize:px(14),lineHeight:px(22),marginTop:px(4),color:c.muted},state.date));
-      const bar=actions(c,{marginTop:px(12),fontSize:px(14),columnGap:px(state.width-2*state.horizontal<280*c.scale?8:16)});
-      bar.append(action(c,'comment','回复',{size:16}),action(c,'share','分享',{size:16}),action(c,'heart',state.likes,{size:16}),action(c,'broken',undefined,{size:16}));content.append(bar);
+      content.append(e('div',{fontSize:px(14),lineHeight:px(22),marginTop:px(4),color:c.muted},state.date+(state.region?' · '+state.region:'')));
+      const bar=actions(c,{marginTop:px(12),fontSize:px(14),columnGap:px(8)});bar.dataset.nativeActions='douyin';
+      const compact=state.width-2*state.horizontal<240*c.scale;
+      bar.append(action(c,'comment',compact?undefined:'回复',{size:16}),action(c,'share',compact?undefined:'分享',{size:16}),action(c,'heart',compact?compactCount(state.likes,'zh-CN'):state.likes,{size:16}),action(c,'broken',undefined,{size:16}));content.append(bar);
       if(state.replies>0)content.append(expansion(c,`展开 ${state.replies} 条回复 ⌄`));
     },
     reddit(c){
@@ -131,21 +132,31 @@
       if(state.replies>0)content.append(e('div',{fontSize:px(13),fontWeight:'600',lineHeight:px(20),marginTop:px(8),paddingLeft:px(12),color:c.muted},`↳ 답글 ${state.replies}개 보기`));
     },
     threads(c){
-      setup(c,{avatar:36,gap:12,body:15,line:21,font:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'});const {state,content,px,dark}=c;c.muted=dark?'#777':'#999';
-      const header=actions(c,{fontSize:px(15),lineHeight:px(21),columnGap:px(8),color:c.ink});
-      header.append(e('span',{fontWeight:'600'},c.handle),e('span',{color:c.muted},state.date),action(c,'more',undefined,{size:20,marginLeft:'auto',color:c.muted}));content.append(header,body(c,{marginTop:px(3)}));
-      const bar=actions(c,{marginTop:px(12),columnGap:px(state.width-2*state.horizontal<280*c.scale?8:18),color:c.ink});
+      setup(c,{avatar:36,gap:12,body:15,line:22,font:'Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'});const {state,root,row,content,px,dark}=c;c.muted=dark?'#777':'#999';root.style.backgroundColor=dark?`rgba(16,16,16,${state.opacity/100})`:`rgba(255,255,255,${state.opacity/100})`;
+      const header=actions(c,{fontSize:px(15),lineHeight:px(21),columnGap:px(6),color:c.ink,flexWrap:'nowrap'});
+      header.append(e('span',{fontWeight:'600',minWidth:'0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},c.handle),e('span',{color:c.muted,minWidth:'0'},state.date),action(c,'more',undefined,{size:22,marginLeft:'auto',color:c.muted,flex:'none'}));content.append(header,body(c,{marginTop:px(3)}));
+      const bar=actions(c,{marginTop:px(12),columnGap:px(state.width-2*state.horizontal<280*c.scale?8:24),color:c.ink,fontSize:px(12),lineHeight:px(18)});
       bar.dataset.nativeActions='threads';
       bar.append(action(c,'heart',state.likes||undefined,{size:22}),action(c,'comment',state.replies||undefined,{size:22}),action(c,'repeat',undefined,{size:22}),action(c,'send',undefined,{size:22}));content.append(bar);
+      if(state.replies>0){row.style.position='relative';const line=e('span',{position:'absolute',left:px(17),top:px(46),bottom:'0',borderLeft:px(2)+' solid '+(dark?'#333':'#e5e5e5'),pointerEvents:'none'});line.dataset.threadConnector='';row.append(line);}
     },
     tieba(c){
-      setup(c,{avatar:80,gap:20,body:14,line:24,font:'Arial,"Microsoft YaHei",SimSun,sans-serif'});const {state,root,row,pic,content,px,dark}=c;
+      setup(c,{avatar:90,gap:20,body:14,line:24,font:'Arial,"Microsoft YaHei",SimSun,sans-serif'});const {state,root,row,pic,content,px,dark}=c;
       root.style.backgroundColor=dark?`rgba(30,31,34,${state.opacity/100})`:`rgba(255,255,255,${state.opacity/100})`;
-      const author=e('div',{flex:'0 0 auto',width:`min(${px(110)}, 28%)`,alignSelf:'stretch',display:'flex',alignItems:'center',flexDirection:'column',gap:px(12),padding:px(14)+' '+px(10),background:dark?'#26272b':'#fbfbfd',borderRight:`1px solid ${dark?'#3a3a3a':'#e5e5e5'}`});
+      const blue=dark?'#97bdfc':'#2d64b3';root.style.color=dark?'#ddd':'#333';
+      if(state.tiebaMode==='nested'){
+        root.dataset.tiebaMode='nested';root.style.backgroundColor=dark?`rgba(38,39,43,${state.opacity/100})`:`rgba(247,248,250,${state.opacity/100})`;
+        row.style.gap=px(10);pic.style.width=pic.style.height=px(32);pic.style.borderRadius='0';pic.style.padding=px(2);pic.style.border='1px solid '+(dark?'#555':'#ccc');pic.style.background='#fff';
+        content.append(e('div',{lineHeight:px(20)}));content.firstElementChild.append(e('span',{color:blue},c.handle+': '),c.text);
+        const meta=actions(c,{marginTop:px(8),justifyContent:'flex-end',fontSize:px(12),lineHeight:px(18),columnGap:px(12),color:dark?'#aaa':'#999'});meta.append(e('span',{},state.date),e('span',{color:blue},'回复'));content.append(meta);
+        row.style.borderBottom='1px dotted '+(dark?'#555':'#d7d7d7');row.style.paddingBottom=px(12);return;
+      }
+      root.dataset.tiebaMode='floor';
+      const author=e('div',{flex:'0 0 auto',width:`min(${px(130)}, 28%)`,alignSelf:'stretch',display:'flex',alignItems:'center',flexDirection:'column',gap:px(16),padding:px(12)+' '+px(15),background:dark?'#26272b':'#fbfbfd'});
       pic.style.maxWidth='100%';pic.style.height='auto';pic.style.aspectRatio='1';pic.style.borderRadius='0';pic.style.padding=px(3);pic.style.border=`1px solid ${dark?'#555':'#ccc'}`;author.append(pic,e('div',{fontSize:px(12),lineHeight:px(18),color:dark?'#97bdfc':'#2d64b3',overflowWrap:'anywhere',textAlign:'center'},c.handle));
-      row.replaceChildren(author,content);row.style.gap=px(20);content.style.padding=px(14)+' 0';content.style.display='flex';content.style.flexDirection='column';content.style.minHeight=px(180);content.append(body(c));
-      const footer=actions(c,{marginTop:'auto',paddingTop:px(24),justifyContent:'flex-end',gap:px(12),color:dark?'#aaa':'#999'});
-      footer.append(e('span',{},String(state.postNumber)+'楼'),e('span',{},state.date),e('span',{color:dark?'#97bdfc':'#2d64b3'},`回复 (${state.replies})`));content.append(footer);
+      row.replaceChildren(author,content);row.style.gap=px(20);content.style.padding=px(14)+' 0';content.style.display='flex';content.style.flexDirection='column';content.style.minHeight=px(224);content.append(body(c));
+      const footer=actions(c,{marginTop:'auto',paddingTop:px(24),justifyContent:'flex-end',gap:px(8),color:dark?'#aaa':'#999'});footer.dataset.nativeActions='tieba';
+      footer.append(action(c,'report','举报',{size:12,gap:px(2),color:dark?'#97bdfc':'#7a9bd2'}),e('span',{},String(state.postNumber)+'楼'),e('span',{},state.date),e('span',{color:blue},'回复'));content.append(footer);
     },
     bilibili(c){
       setup(c,{avatar:48,gap:12,body:16,line:26,font:'-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif'});const {state,content,px,dark}=c;c.muted='#9499a0';c.root.style.color=dark?'#e3e5e7':'#18191c';

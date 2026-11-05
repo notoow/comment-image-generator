@@ -44,7 +44,7 @@
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
     const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
-    state.replyIndex=1;state.boardId='aB3cD4eF0';
+    state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
     let uploadVersion = 0;
@@ -62,6 +62,7 @@
       if (!/^#[0-9a-f]{6}$/i.test(state.avatarColor)) state.avatarColor='#5f6dc5';
       if (!['default','random','initials','original','mosaic','blur'].includes(state.avatarMode)) state.avatarMode='default';
       if (!['collapsed','expanded'].includes(state.youtubeMode)) state.youtubeMode='collapsed';
+      if (!['floor','nested'].includes(state.tiebaMode)) state.tiebaMode='floor';state.region=state.region.slice(0,20);
       state.avatarText=Array.from(state.avatarText).slice(0,3).join('');
       if (!['light','dark'].includes(state.theme)) state.theme = 'light';
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
@@ -160,11 +161,12 @@
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
       find('[data-youtube-only]').hidden=state.platform!=='youtube';
       find('[data-futaba-only]').hidden=state.platform!=='futaba';find('[data-fivech-only]').hidden=state.platform!=='fivech';
+      find('[data-tieba-only]').hidden=state.platform!=='tieba';find('[data-region-field]').hidden=state.platform!=='douyin';
       find('[data-initials-field]').hidden=state.avatarMode!=='initials';
       const photo=!!uploaded&&['original','mosaic','blur'].includes(state.avatarMode);
       find('[data-key="avatarColor"]').disabled=photo;find('[data-avatar-color-value]').textContent=state.avatarColor.toUpperCase();
       all('[data-avatar-color]').forEach(b=>{b.disabled=photo;b.setAttribute('aria-pressed',String(b.dataset.avatarColor.toLowerCase()===state.avatarColor.toLowerCase()));});
-      find('[data-avatar-field]').hidden=board||state.platform==='dc';find('[data-board-field]').hidden=!board&&state.platform!=='tieba';find('[data-reaction-fields]').hidden=['fivech','dc'].includes(state.platform);
+      find('[data-avatar-field]').hidden=board||state.platform==='dc';find('[data-board-field]').hidden=!board&&(state.platform!=='tieba'||state.tiebaMode==='nested');find('[data-reaction-fields]').hidden=['fivech','dc'].includes(state.platform);
       find('[data-likes-field]').hidden=state.platform==='tieba';find('[data-replies-field]').hidden=state.platform==='futaba';
       find('[data-likes-label]').textContent=state.platform==='reddit'?'투표 수':state.platform==='futaba'?'そうだね':state.platform==='dc'?'추천':'좋아요';
       all('[data-platform]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.platform===state.platform)));
@@ -175,7 +177,7 @@
       find('[data-transparent]').checked=state.opacity===0;
       find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;
       find('[data-opacity]').textContent=state.opacity+'%';find('[data-padding]').textContent=state.padding+' px';find('[data-horizontal]').textContent=state.horizontal+' px';
-      find('.cs-platform-name').textContent=names[state.platform];const limited={tieba:'보안 확인 화면으로 원본 댓글 실측 미완료',threads:'계정 확인 화면으로 원본 댓글 실측 미완료',douyin:'원본 댓글 로딩을 확인하지 못해 실측 미완료'};find('[data-status]').textContent=limited[state.platform]||'실제 웹 댓글의 아이콘·배치 실측 반영 · 브라우저와 글꼴에 따라 차이 있음';
+      find('.cs-platform-name').textContent=names[state.platform];find('[data-status]').textContent=['tieba','threads','douyin'].includes(state.platform)?'실제 웹 댓글 캡처와 비교해 재현 · 캡처 시점·글꼴에 따라 차이 있음':'실제 웹 댓글의 아이콘·배치 실측 반영 · 브라우저와 글꼴에 따라 차이 있음';
       find('[data-download]').disabled=true;
       let rendered=false;
       try {

@@ -1,7 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>Platform layout verification</title><base href="../">
 <link rel="stylesheet" href="styles.css">
 <script src="assets/vendor/html-to-image-1.11.13.js"></script>
-<script src="native-icons.js"></script><script src="native-templates.js"></script>
+<script src="native-icons.js"></script><script src="capture-icons.js"></script><script src="native-templates.js?v=20261105-capture1"></script>
 <style>body{font:14px Arial;margin:20px}#cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.sample{border:1px solid #ddd;overflow:auto}.host{position:relative}pre{white-space:pre-wrap}button{padding:12px}canvas{max-width:100%;height:auto}</style>
 <h1>Platform geometry and export checks</h1><button id="run">Run geometry matrix</button><select id="theme" aria-label="Sample theme"><option>light</option><option>dark</option></select><label><input id="zero" type="checkbox">Zero reactions</label><button id="png">Export platform samples</button><pre id="result">Ready</pre><div id="cards"></div>
 <script>
@@ -19,18 +19,21 @@ document.querySelector('#run').onclick=async()=>{
   }catch(error){results.push({platform,theme,width,error:error.message})}finally{host.remove()}
  }
  for(const platform of ids){const host=document.createElement('div');document.body.append(host);try{const size=CommentNative.preview({state:{...base,platform,width:240,font:32,horizontal:64},avatar,host});results.push({platform,case:'large-font',...size})}catch(error){results.push({platform,case:'large-font',error:error.message})}finally{host.remove()}}
- for(const platform of ['x','reddit','threads'])for(const width of [240,261,320]){const host=document.createElement('div');document.body.append(host);try{CommentNative.preview({state:{...base,platform,width,handle:'notoow',likes:24,text:'짧은 댓글'},avatar,host});const icons=[...host.querySelectorAll('[data-native-actions] svg')];const centers=icons.map(n=>{const r=n.getBoundingClientRect();return r.top+r.height/2});results.push({platform,width,case:'action-row',error:Math.max(...centers)-Math.min(...centers)>1?'Normal action icons wrap to different lines':undefined})}finally{host.remove()}}
+ for(const platform of ['x','reddit','threads','douyin'])for(const width of [240,261,320]){const host=document.createElement('div');document.body.append(host);try{CommentNative.preview({state:{...base,platform,width,handle:'notoow',likes:24,text:'짧은 댓글'},avatar,host});const icons=[...host.querySelectorAll('[data-native-actions] svg')];const centers=icons.map(n=>{const r=n.getBoundingClientRect();return r.top+r.height/2});results.push({platform,width,case:'action-row',error:Math.max(...centers)-Math.min(...centers)>1?'Normal action icons wrap to different lines':undefined})}finally{host.remove()}}
+ for(const theme of ['light','dark'])for(const width of [240,261,320,480,960]){const host=document.createElement('div');document.body.append(host);try{const size=CommentNative.preview({state:{...base,platform:'tieba',tiebaMode:'nested',theme,width},avatar,host});const root=host.firstElementChild,r=root.getBoundingClientRect();const escapes=[...root.querySelectorAll('*')].filter(n=>{const b=n.getBoundingClientRect();return b.width&&b.height&&(b.left<r.left-.6||b.right>r.right+.6||b.top<r.top-.6||b.bottom>r.bottom+.6)}).map(n=>n.tagName);results.push({platform:'tieba',case:'nested',theme,width,...size,escapes,error:root.dataset.tiebaMode!=='nested'?'Nested layout not selected':undefined})}catch(error){results.push({platform:'tieba',case:'nested',theme,width,error:error.message})}finally{host.remove()}}
+ for(const [platform,names] of Object.entries({threads:['heart','comment','repeat','send','more'],douyin:['comment','share','heart','broken'],tieba:['report']})){const missing=names.filter(name=>CommentSourceIcons[platform]?.[name]?.provenance!=='screenshot-trace');results.push({platform,case:'capture-icon-catalog',error:missing.length?'Missing traced shapes: '+missing.join(','):undefined})}
  document.querySelector('#result').textContent=JSON.stringify({cases:results.length,failures:results.filter(n=>n.error||n.overflow||n.escapes?.length),results},null,2);document.querySelector('#result').dataset.done='true';
 };
 document.querySelector('#png').onclick=async()=>{
  const results=[];document.querySelector('#cards').replaceChildren();
- for(const platform of ids)for(const width of [261,650]){
+ for(const fixture of [...ids.map(platform=>({platform})),{platform:'tieba',tiebaMode:'nested'}])for(const width of [261,650]){
+  const platform=fixture.platform;
   const section=document.createElement('section');section.className='sample';const title=document.createElement('h3');title.textContent=platform+' '+width;section.append(title);document.querySelector('#cards').append(section);
   const canvas=document.createElement('canvas');section.append(canvas);
   const theme=document.querySelector('#theme').value,zero=document.querySelector('#zero').checked;
-  const state={...base,platform,theme,width,handle:'notoow',date:'2일 전',likes:zero?0:24,replies:zero?0:3,text:'설명이 정말 깔끔해서 끝까지 보게 되네요.\n다음 영상도 기대할게요!'};
+  const state={...base,...fixture,platform,theme,width,handle:'notoow',date:'2일 전',likes:zero?0:24,replies:zero?0:3,text:'설명이 정말 깔끔해서 끝까지 보게 되네요.\n다음 영상도 기대할게요!'};
   const host=document.createElement('div');host.className='host';host.dataset.preview=platform+'-'+width;section.append(host);CommentNative.preview({state,avatar,host});
-  try{const size=await CommentNative.render({state,avatar,target:canvas,guides:false});const img=document.createElement('img');img.dataset.export=platform+'-'+width+'-'+theme+(zero?'-zero':'');img.src=canvas.toDataURL();img.hidden=true;section.append(img);const record={platform,theme,zero,width,...size,pngWidth:canvas.width,pngHeight:canvas.height};
+  try{const size=await CommentNative.render({state,avatar,target:canvas,guides:false});const img=document.createElement('img');img.dataset.export=platform+'-'+width+'-'+theme+(zero?'-zero':'');img.src=canvas.toDataURL();img.hidden=true;section.append(img);const record={platform,tiebaMode:fixture.tiebaMode,theme,zero,width,...size,pngWidth:canvas.width,pngHeight:canvas.height};
    if(platform==='tiktok'){const root=host.firstElementChild.getBoundingClientRect(),heart=host.querySelector('[data-source-icon="tiktok:heart"]').getBoundingClientRect(),zoom=root.width/state.width;const x=Math.round((heart.left-root.left)/zoom*2),y=Math.round((heart.top-root.top)/zoom*2);const data=canvas.getContext('2d').getImageData(x,y,Math.round(heart.width/zoom*2),Math.round(heart.height/zoom*2)).data;let pixels=0,bg=theme==='dark'?15:255;for(let i=0;i<data.length;i+=4)if(Math.abs(data[i]-bg)>32||Math.abs(data[i+1]-bg)>32||Math.abs(data[i+2]-bg)>32)pixels++;record.heartPixels=pixels;if(pixels<8)record.error='Exported heart missing from its measured footer position';}
    results.push(record)
   }catch(error){results.push({platform,width,error:error.message})}

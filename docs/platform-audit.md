@@ -27,17 +27,14 @@ reaction is `assets/facebook-like.svg`. The editor chrome still uses Lucide.
 Source vectors are scoped by platform; one common heart/thumb is no longer used
 for the inspected clients above.
 
-## Sources that could not be confirmed
+## Screenshot comparison follow-up — 2026-11-05
 
-| Platform | Observed blocker | Status |
-| --- | --- | --- |
-| Baidu Tieba | [Actual site](https://tieba.baidu.com/) returned 百度安全验证. | The existing screenshot-derived desktop layout remains; **not source-measured**. |
-| Threads | Existing [Threads public-profile visit](https://www.threads.com/@threads) redirected to account/phone verification. | No phone number or verification code was submitted. Existing reconstructed template remains; **not source-measured**. |
-| Douyin | [Actual site](https://www.douyin.com/) loaded a public video, but the comment control did not produce inspectable comments; login guidance also appeared. | The old screenshot-derived footer remains; **not source-measured**. |
-
-The app displays a platform-specific incomplete-verification status for these
-three. Rendering/export checks below do not turn inaccessible sources into
-verified originals.
+Baidu, Threads and Douyin blocked direct DOM inspection during the first pass.
+They have now been compared with actual desktop comment screenshots found through
+image search. See [capture comparison](capture-comparison.md) for accepted sources,
+versions, corrections and limits. `capture-icons.js` contains their screenshot-traced
+outlines, explicitly distinguished from the source DOM vectors in `native-icons.js`.
+The app now identifies these as screenshot comparisons. They remain **not DOM-measured**.
 
 ## Narrow-width behavior
 
