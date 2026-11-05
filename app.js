@@ -43,7 +43,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyText:'',date:'9일 전',likes:24,replies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
     state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     let uploaded = null;
@@ -128,10 +128,10 @@
     commentMenu.addEventListener('keydown',event=>{if(event.key==='Escape'){closeCommentMenu();find('[data-comment-menu]')?.focus();}});
     find('[data-comment-edit]').addEventListener('click',()=>{state.panel='content';render();persist();find('[data-key="text"]').focus();});
     find('[data-comment-copy]').addEventListener('click',async()=>{closeCommentMenu();try{await navigator.clipboard.writeText(state.text);find('[data-status]').textContent='댓글 텍스트를 복사했습니다.';}catch{find('[data-status]').textContent='댓글 입력란에서 텍스트를 선택해 복사해 주세요.';}});
-    function showYouTubePreview(){
+    function showEditablePreview(){
       liveHost.hidden=false;canvas.hidden=true;
       const size=CommentNative.preview({state:{...state},avatar:avatarSource(),host:liveHost,interactive:true});
-      resizer.update(size,{live:true});find('[data-comment-menu]').setAttribute('aria-expanded',String(!commentMenu.hidden));sizeLabels(size);return size;
+      resizer.update(size,{live:true});find('[data-comment-menu]')?.setAttribute('aria-expanded',String(!commentMenu.hidden));sizeLabels(size);return size;
     }
     function sizeLabels({w,h}){
       find('[data-size]').textContent=`${w.toLocaleString()} × ${h.toLocaleString()} px`;
@@ -160,6 +160,7 @@
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
       find('[data-youtube-only]').hidden=state.platform!=='youtube';
+      find('[data-reply-text-field]').hidden=!['youtube','instagram'].includes(state.platform);
       find('[data-futaba-only]').hidden=state.platform!=='futaba';find('[data-fivech-only]').hidden=state.platform!=='fivech';
       find('[data-tieba-only]').hidden=state.platform!=='tieba';find('[data-region-field]').hidden=state.platform!=='douyin';
       find('[data-initials-field]').hidden=state.avatarMode!=='initials';
@@ -176,17 +177,18 @@
       find('[data-guide]').setAttribute('aria-pressed',String(state.guides));
       find('[data-transparent]').checked=state.opacity===0;
       find('[data-count]').textContent=`${state.text.length.toLocaleString()} / 4,000`;
+      find('[data-reply-count]').textContent=`${state.replyText.length.toLocaleString()} / 2,000`;
       find('[data-opacity]').textContent=state.opacity+'%';find('[data-padding]').textContent=state.padding+' px';find('[data-horizontal]').textContent=state.horizontal+' px';
       find('.cs-platform-name').textContent=names[state.platform];find('[data-status]').textContent=['tieba','threads','douyin'].includes(state.platform)?'실제 웹 댓글 캡처와 비교해 재현 · 캡처 시점·글꼴에 따라 차이 있음':'실제 웹 댓글의 아이콘·배치 실측 반영 · 브라우저와 글꼴에 따라 차이 있음';
       find('[data-download]').disabled=true;
       let rendered=false;
       try {
-        if(state.platform==='youtube')showYouTubePreview();
+        if(['youtube','instagram'].includes(state.platform))showEditablePreview();
         const temp=document.createElement('canvas');const size=await paint(temp,state.guides);const {w,h,overflow}=size;
         if(version!==renderVersion)return;
         rendered=true;canvas.dataset.layoutOverflow=String(overflow);canvas.width=temp.width;canvas.height=temp.height;canvas.getContext('2d').drawImage(temp,0,0);
         if(state.height){state.height=h;find('[data-key="height"]').value=h;persist();}
-        sizeLabels(size);if(state.platform==='youtube')showYouTubePreview();else resizer.update(size);
+        sizeLabels(size);if(['youtube','instagram'].includes(state.platform))showEditablePreview();else resizer.update(size);
       } catch(error) {
         if(version===renderVersion){find('[data-status]').textContent=error.userMessage||'이미지를 만들지 못했습니다. 설정을 바꾸거나 새로고침해 주세요.';canvas.width=0;canvas.height=0;find('[data-size]').textContent='설정을 조절해 주세요.';find('[data-export-size]').textContent='PNG 출력 범위 초과';}
         if(version===renderVersion){liveHost.hidden=true;liveHost.replaceChildren();canvas.hidden=false;}console.error('Comment render failed',error);
@@ -201,6 +203,15 @@
       if(['likes','replies'].includes(key))state[key]=Math.floor(state[key]);
       queueRender();persist();
     });
+    liveHost.addEventListener('input',event=>{
+      const target=event.target.closest('[data-comment-text],[data-reply-text]');if(!target)return;
+      const key=target.hasAttribute('data-reply-text')?'replyText':'text',value=target.innerText.replace(/\r/g,'');
+      state[key]=value;const field=find(`[data-key="${key}"]`);field.value=value;
+      if(key==='text')find('[data-count]').textContent=`${value.length.toLocaleString()} / 4,000`;
+      else find('[data-reply-count]').textContent=`${value.length.toLocaleString()} / 2,000`;
+      find('[data-download]').disabled=!value.trim()&&!state.text.trim();persist();
+    });
+    liveHost.addEventListener('focusout',event=>{if(event.target.matches('[data-comment-text],[data-reply-text]'))queueRender();});
     all('[data-platform]').forEach(b=>b.addEventListener('click',()=>{state.platform=b.dataset.platform;render();find('.cs-platform-dialog').close();persist();}));
     find('[data-open-platform]').addEventListener('click',()=>find('.cs-platform-dialog').showModal());
     find('[data-close-platform]').addEventListener('click',()=>find('.cs-platform-dialog').close());

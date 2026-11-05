@@ -202,7 +202,7 @@
       row.append(body(c,{fontSize:px(16),fontWeight:'300',lineHeight:px(25.6)}));
     }
   };
-  function build({state,avatar}) {
+  function build({state,avatar,interactive=false}) {
     if(!renderers[state.platform] && !['youtube','instagram','dc'].includes(state.platform))throw new Error('지원하지 않는 플랫폼입니다.');
     const yt=state.platform==='youtube',dark=state.theme==='dark',scale=state.font/14;
     const px=v=>v*scale+'px',ink=dark?'#f1f1f1':'#0f0f0f',muted=dark?'#aaa':'#606060';
@@ -212,7 +212,10 @@
     const content=e('div',{minWidth:'0',flex:'1'});row.append(content);root.append(row);
     const handle=state.handle.replace(/^@+/,'')||'viewer';
     const text=e('span',{whiteSpace:'pre-wrap',overflowWrap:'anywhere'},state.text||'댓글 내용을 입력하세요.');
-    const context={state,avatar,root,row,pic,content,handle,text,px,scale,dark,ink,muted};
+    if(interactive&&['youtube','instagram'].includes(state.platform)){text.contentEditable='true';text.dataset.commentText='';text.setAttribute('role','textbox');text.setAttribute('aria-label','댓글 내용 직접 편집');text.spellcheck=false;}
+    const replyText=e('span',{whiteSpace:'pre-wrap',overflowWrap:'anywhere'},state.replyText||'');
+    if(interactive&&['youtube','instagram'].includes(state.platform)){replyText.contentEditable='true';replyText.dataset.replyText='';replyText.dataset.placeholder='답글을 입력하려면 클릭';replyText.setAttribute('role','textbox');replyText.setAttribute('aria-label','답글 내용 직접 편집');replyText.spellcheck=false;}
+    const context={state,avatar,root,row,pic,content,handle,text,replyText,px,scale,dark,ink,muted};
     if(renderers[state.platform]){
       renderers[state.platform](context);
     }else if(state.platform==='dc'){
@@ -232,14 +235,14 @@
       const actions=e('div',{display:'flex',alignItems:'center',minHeight:px(36),flexWrap:'wrap',rowGap:px(8),marginTop:px(4),fontSize:px(12),lineHeight:px(18)});
       actions.append(icon('up',18*scale),e('span',{marginLeft:px(6),marginRight:px(8)},String(state.likes)));
       const dislike=e('span',{width:px(32),display:'flex',justifyContent:'center'});dislike.append(icon('down',18*scale));actions.append(dislike,e('span',{padding:'0 '+px(12),fontWeight:'500'},'답글'));content.append(actions);
-      if(state.replies>0){const reply=e('div',{display:'flex',alignItems:'center',minHeight:px(36),gap:px(8),fontWeight:'500',fontSize:px(14),marginTop:px(8)});reply.append(e('span',{},`답글 ${state.replies}개`),icon('chevron',24*scale));content.append(reply);}
+      if(state.replies>0||state.replyText||interactive){const reply=e('div',{display:'flex',alignItems:'flex-start',gap:px(8),marginTop:px(8),fontSize:px(13),lineHeight:px(20)});reply.dataset.replyComment='';reply.append(e('span',{width:px(24),height:px(24),flex:'none',borderRadius:'50%',background:dark?'#3f3f3f':'#e5e5e5',display:'grid',placeItems:'center',fontSize:px(10),fontWeight:'600'},'N'));const copy=e('div',{minWidth:'0',flex:'1'});copy.append(e('span',{fontWeight:'500'},'notoow · '),replyText);reply.append(copy);content.append(reply);}
     }else{
       row.style.gap=px(12);pic.style.marginTop='0';
       const header=e('div',{display:'flex',alignItems:'baseline',flexWrap:'wrap',gap:px(4),fontSize:px(14),lineHeight:px(18)});header.append(e('span',{fontWeight:'600'},handle),e('span',{color:dark?'#a8a8a8':'#737373'},state.date));content.append(header);
       const body=e('div',{lineHeight:px(18)});body.append(text);content.append(body);
       const actions=e('div',{display:'flex',alignItems:'center',flexWrap:'wrap',gap:px(12),marginTop:px(8),fontSize:px(12),lineHeight:px(16),color:dark?'#a8a8a8':'#737373'});
       if(state.likes>0)actions.append(e('span',{fontWeight:'600'},`좋아요 ${state.likes.toLocaleString()}개`));actions.append(e('span',{fontWeight:'600'},'답글 달기'));content.append(actions);
-      if(state.replies>0){const reply=e('div',{display:'flex',alignItems:'center',gap:px(16),marginTop:px(16),fontSize:px(12),fontWeight:'600',color:dark?'#a8a8a8':'#737373'});reply.append(e('span',{width:px(24),borderTop:'1px solid currentColor'}),e('span',{},`답글 보기(${state.replies}개)`));content.append(reply);}
+      if(state.replies>0||state.replyText||interactive){const reply=e('div',{display:'flex',alignItems:'flex-start',gap:px(8),marginTop:px(12),fontSize:px(13),lineHeight:px(18),color:dark?'#e5e5e5':'#262626'});reply.dataset.replyComment='';reply.append(e('span',{width:px(20),height:px(20),flex:'none',borderRadius:'50%',background:dark?'#555':'#ddd',display:'grid',placeItems:'center',fontSize:px(9)},'N'));const copy=e('div',{minWidth:'0',flex:'1'});copy.append(e('span',{fontWeight:'600'},'notoow '),replyText);reply.append(copy);content.append(reply);}
       const heart=e('div',{flex:'none',paddingTop:px(16)});heart.append(icon('heart',12*scale));row.append(heart);
     }
     const available=state.width-2*state.horizontal;
@@ -263,7 +266,7 @@
     return {w:state.width,h,minH,overflow:root.scrollWidth>root.clientWidth};
   }
   function preview({state,avatar,host,interactive=false}){
-    const {root}=build({state,avatar});root.style.position='relative';root.style.left='0';root.style.top='0';
+    const {root}=build({state,avatar,interactive});root.style.position='relative';root.style.left='0';root.style.top='0';
     if(interactive)root.removeAttribute('aria-hidden');host.dataset.interactive=String(interactive);host.replaceChildren(root);
     return measure(root,state);
   }

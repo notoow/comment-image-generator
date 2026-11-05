@@ -25,15 +25,15 @@
 <meta name="twitter:image" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preload" href="assets/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261105-capture1">
+<link rel="stylesheet" href="styles.css?v=20261105-inline-replies">
 <script src="assets/vendor/lucide-1.17.0.js" defer></script>
 <script src="assets/vendor/html-to-image-1.11.13.js" defer></script>
-<script src="native-icons.js?v=20261105-capture1" defer></script>
-<script src="capture-icons.js?v=20261105-capture1" defer></script>
-<script src="native-templates.js?v=20261105-capture1" defer></script>
-<script src="random-generators.js?v=20261105-capture1" defer></script>
-<script src="resize-controller.js?v=20261105-capture1" defer></script>
-<script src="app.js?v=20261105-capture1" defer></script>
+<script src="native-icons.js?v=20261105-inline-replies" defer></script>
+<script src="capture-icons.js?v=20261105-inline-replies" defer></script>
+<script src="native-templates.js?v=20261105-inline-replies" defer></script>
+<script src="random-generators.js?v=20261105-inline-replies" defer></script>
+<script src="resize-controller.js?v=20261105-inline-replies" defer></script>
+<script src="app.js?v=20261105-inline-replies" defer></script>
   <meta property="og:image:secure_url" content="https://notoow.github.io/comment-image-generator/assets/og-image.png">
 </head>
 <body>
@@ -60,6 +60,7 @@
               <div class="cs-field"><label class="cs-field-title" for="comment-handle">아이디</label><input id="comment-handle" data-key="handle" value="@slow_morning" maxlength="60" autocomplete="off"><div class="cs-name-generator"><select data-key="nameStyle" aria-label="랜덤 아이디 종류"><option value="color">색상</option><option value="food">음식</option><option value="phrase" selected>자연어</option><option value="alphabet">알파벳 조합</option></select><button type="button" class="cs-generate-button cursor-interaction" data-random-name><i data-lucide="shuffle" aria-hidden="true"></i>아이디 랜덤 생성</button></div></div>
               <label class="cs-field cs-text-field"><span class="cs-field-title">댓글 내용 <output data-count>0 / 4,000</output></span><textarea data-key="text" rows="4" maxlength="4000" spellcheck="false">설명이 정말 깔끔해서 끝까지 보게 되네요.
 다음 영상도 기대할게요!</textarea></label>
+              <label class="cs-field cs-text-field" data-reply-text-field hidden><span class="cs-field-title">답글 내용 <output data-reply-count>0 / 2,000</output></span><textarea data-key="replyText" rows="3" maxlength="2000" spellcheck="false" placeholder="답글 내용을 입력하세요."></textarea><span class="cs-help">미리보기의 답글을 눌러서 바로 편집할 수도 있습니다.</span></label>
               <label class="cs-field" data-youtube-only hidden><span class="cs-field-title">유튜브 긴 댓글</span><select data-key="youtubeMode" aria-label="유튜브 댓글 펼침 상태"><option value="collapsed">접힌 상태 · 4줄</option><option value="expanded">펼친 상태</option></select><span class="cs-help">미리보기의 자세히 알아보기·간략히를 눌러도 바뀝니다.</span></label>
               <label class="cs-field" data-tieba-only hidden><span class="cs-field-title">바이두 댓글 형태</span><select data-key="tiebaMode" aria-label="바이두 댓글 형태"><option value="floor">본문 댓글 · 楼层</option><option value="nested">대댓글 · 楼中楼</option></select></label>
               <label class="cs-field" data-region-field hidden><span class="cs-field-title">지역 · IP 위치 (선택)</span><input data-key="region" value="" maxlength="20" placeholder="예: 安徽" autocomplete="off"></label>
