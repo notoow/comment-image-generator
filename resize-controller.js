@@ -11,7 +11,11 @@
   }
   function mount({frame,area,canvas,host,ghost,tooltip,getState,onStart,onChange,onEnd,onError=()=>{}}){
     let metrics={w:getState().width,h:200},scale=1,drag=null,raf=0,lastMove=null;
-    function fit(){scale=Math.max(.05,Math.min(1,(area.clientWidth-16)/Math.max(960,metrics.w)));layout();}
+    function fit(){
+      const widthScale=(area.clientWidth-16)/Math.max(960,metrics.w);
+      const heightScale=area.clientHeight>32?(area.clientHeight-16)/Math.max(1,metrics.h):1;
+      scale=Math.max(.05,Math.min(1,widthScale,heightScale));layout();
+    }
     function layout(){
       frame.style.width=metrics.w*scale+'px';frame.style.height=metrics.h*scale+'px';
       host.style.width=metrics.w+'px';host.style.transform=`scale(${scale})`;
@@ -76,8 +80,13 @@
       catch(error){metrics=onChange(previous);onEnd();onError(error);}
     });
     window.addEventListener('blur',()=>finish(true));
-    let available=0;
-    new ResizeObserver(()=>{if(area.clientWidth!==available){available=area.clientWidth;if(!drag)fit();}}).observe(area);
+    let availableWidth=0,availableHeight=0;
+    new ResizeObserver(()=>{
+      if(area.clientWidth!==availableWidth||area.clientHeight!==availableHeight){
+        availableWidth=area.clientWidth;availableHeight=area.clientHeight;
+        if(!drag)fit();
+      }
+    }).observe(area);
     return {update,fit};
   }
   globalThis.CommentResize={mount,dimensions};

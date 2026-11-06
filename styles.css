@@ -166,3 +166,12 @@
 @font-face{font-family:Roboto;font-style:normal;font-weight:600;src:url(assets/Roboto-600.ttf) format("truetype");font-display:swap}
 #comment-image-generator [contenteditable="true"]{cursor:text;border-radius:2px}#comment-image-generator [contenteditable="true"]:focus{outline:2px solid #6b8afd;outline-offset:2px}#comment-image-generator [contenteditable="true"][data-placeholder]:empty::before{content:attr(data-placeholder);color:#999;pointer-events:none}
 #comment-image-generator .cs-reply-editor{min-width:0;margin:12px 0 0;padding:12px;border:1px solid var(--cs-line);border-radius:6px}#comment-image-generator .cs-reply-editor legend{padding:0 6px;font-size:12px;font-weight:600}#comment-image-generator .cs-reply-editor>button{margin:4px 6px 0 0;padding:7px 9px;border:1px solid var(--cs-line);border-radius:4px;background:var(--cs-bg);font-size:12px}#comment-image-generator .cs-reply-profile{display:flex;gap:8px;align-items:center;margin:8px 0}#comment-image-generator .cs-reply-profile input[type=color]{width:34px;height:34px;padding:2px}
+#comment-image-generator .cs-app .cs-work{flex:0 0 min(1000px,calc(100vh - 180px));height:min(1000px,calc(100vh - 180px));min-height:700px;grid-template-rows:minmax(0,1fr)}
+#comment-image-generator .cs-controls{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#comment-image-generator .cs-preview{min-height:0}
+#comment-image-generator .cs-stage{min-height:0;overflow:hidden}
+#comment-image-generator .cs-resize-area{flex:1;min-height:0;align-items:center}
+#comment-image-generator .cs-reply-editor .cs-reply-legend{width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 6px}
+#comment-image-generator .cs-reply-editor .cs-reply-remove{flex:none;width:28px;height:28px;min-width:28px;min-height:28px;margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;display:grid;place-items:center;background:transparent!important;color:#888;font-size:20px!important;line-height:1}
+#comment-image-generator .cs-reply-editor .cs-reply-remove:hover{background:#f0f0f0!important;color:#111}
+@media(max-width:650px){#comment-image-generator .cs-work{height:auto;min-height:0}#comment-image-generator .cs-controls{max-height:none;overflow:visible}#comment-image-generator .cs-stage{height:360px;min-height:240px;flex:none}#comment-image-generator .cs-resize-area{flex:none;min-height:250px}}

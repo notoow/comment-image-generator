@@ -87,11 +87,11 @@
       replyList.replaceChildren();
       state.replyItems.forEach((item,i)=>{
         const card=document.createElement('fieldset');card.className='cs-reply-editor';card.dataset.replyIndex=i;
-        const legend=document.createElement('legend');legend.textContent=`답글 ${i+1}`;card.append(legend);
+        const legend=document.createElement('legend');legend.className='cs-reply-legend';const title=document.createElement('span');title.textContent=`답글 ${i+1}`;const remove=document.createElement('button');remove.type='button';remove.className='cs-reply-remove';remove.dataset.replyAction='remove';remove.setAttribute('aria-label',`답글 ${i+1} 삭제`);remove.title='답글 삭제';remove.textContent='×';legend.append(title,remove);card.append(legend);
         const field=(key,label,value,tag='input')=>{const wrap=document.createElement('label');wrap.className='cs-field';const title=document.createElement('span');title.className='cs-field-title';title.textContent=label;const control=document.createElement(tag);control.dataset.replyField=key;control.value=value;if(tag==='textarea'){control.rows=3;control.maxLength=key==='text'?2000:1000;}else control.maxLength=key==='handle'?60:30;wrap.append(title,control);card.append(wrap);};
         field('handle','아이디',item.handle);field('text','답글 내용',item.text,'textarea');field('translation','번역 문구',item.translation);field('date','작성 시점',item.date);field('likes','좋아요',item.likes);
         const profile=document.createElement('div');profile.className='cs-reply-profile';const avatar=document.createElement('input');avatar.type='color';avatar.value=item.avatarColor;avatar.dataset.replyField='avatarColor';avatar.setAttribute('aria-label',`답글 ${i+1} 프로필 색상`);const initials=document.createElement('input');initials.value=item.avatarText;initials.maxLength=3;initials.dataset.replyField='avatarText';initials.setAttribute('aria-label',`답글 ${i+1} 프로필 이니셜`);profile.append(avatar,initials);card.append(profile);
-        for(const [action,label] of [['profile','프로필 랜덤'],['name','아이디 랜덤'],['remove','삭제']]){const button=document.createElement('button');button.type='button';button.dataset.replyAction=action;button.textContent=label;card.append(button);}
+        for(const [action,label] of [['profile','프로필 랜덤'],['name','아이디 랜덤']]){const button=document.createElement('button');button.type='button';button.dataset.replyAction=action;button.textContent=label;card.append(button);}
         replyList.append(card);
       });
     }
