@@ -172,6 +172,19 @@
 #comment-image-generator .cs-stage{min-height:0;overflow:hidden}
 #comment-image-generator .cs-resize-area{flex:1;min-height:0;align-items:center}
 #comment-image-generator .cs-reply-editor .cs-reply-legend{width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 6px}
-#comment-image-generator .cs-reply-editor .cs-reply-remove{flex:none;width:28px;height:28px;min-width:28px;min-height:28px;margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;display:grid;place-items:center;background:transparent!important;color:#888;font-size:20px!important;line-height:1}
+#comment-image-generator .cs-reply-editor .cs-reply-remove{flex:none;width:36px;height:36px;min-width:36px;min-height:36px;margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;display:grid;place-items:center;background:transparent!important;color:#888;font-size:20px!important;line-height:1}
 #comment-image-generator .cs-reply-editor .cs-reply-remove:hover{background:#f0f0f0!important;color:#111}
-@media(max-width:650px){#comment-image-generator .cs-work{height:auto;min-height:0}#comment-image-generator .cs-controls{max-height:none;overflow:visible}#comment-image-generator .cs-stage{height:360px;min-height:240px;flex:none}#comment-image-generator .cs-resize-area{flex:none;min-height:250px}}
+#comment-image-generator .cs-replies-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#comment-image-generator .cs-replies-heading>span{min-width:0}
+#comment-image-generator [data-reply-count]{margin-left:5px;color:var(--cs-muted);font-size:11px;font-weight:400;font-variant-numeric:tabular-nums}
+#comment-image-generator [data-add-reply]:disabled{opacity:.45;cursor:not-allowed}
+#comment-image-generator .cs-reply-editor{width:100%;max-width:100%;}
+#comment-image-generator .cs-reply-profile{display:grid;grid-template-columns:36px 54px minmax(0,1fr);gap:8px;align-items:end;margin:10px 0}
+#comment-image-generator .cs-reply-avatar-preview{width:36px;height:36px;align-self:center;display:grid;place-items:center;border-radius:50%;color:#fff;font-size:13px;font-weight:600;overflow:hidden}
+#comment-image-generator .cs-reply-profile-control{display:grid;gap:4px;min-width:0;color:var(--cs-muted);font-size:10px;line-height:1.2}
+#comment-image-generator .cs-reply-profile-control input{height:34px;min-height:34px}
+#comment-image-generator .cs-reply-profile-control input[type=color]{width:40px;height:34px;min-width:40px;padding:2px}
+#comment-image-generator .cs-reply-actions{display:flex;flex-wrap:wrap;gap:6px}
+#comment-image-generator .cs-reply-editor .cs-reply-actions button{min-height:32px;margin:0;padding:6px 9px;font-size:11px}
+@media(max-width:800px){#comment-image-generator .cs-reply-profile{grid-template-columns:36px 48px minmax(0,1fr);gap:6px}}
+@media(max-width:650px){#comment-image-generator .cs-app .cs-work{flex:none;height:auto;min-height:0}#comment-image-generator .cs-controls{max-height:none;overflow:visible}#comment-image-generator .cs-stage{height:360px;min-height:240px;flex:none}#comment-image-generator .cs-resize-area{flex:none;min-height:250px}}
