@@ -61,6 +61,7 @@
 #comment-image-generator .cs-panel{display:grid;gap:20px;align-content:start}
 #comment-image-generator .cs-field{display:grid;gap:8px;min-width:0}
 #comment-image-generator .cs-field-title{font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#comment-image-generator .cs-date-labels{display:flex;justify-content:space-between;gap:8px;font-size:10px;line-height:1.4;color:#929292}
 #comment-image-generator .cs-field-title output,#comment-image-generator .cs-field-title small{font-weight:400;font-size:11px;color:var(--cs-muted);font-variant-numeric:tabular-nums}
 #comment-image-generator .cs-avatar-row{display:grid;grid-template-columns:42px minmax(0,1fr) 36px;align-items:center;gap:9px}
 #comment-image-generator .cs-avatar-mini{width:42px;height:42px;border-radius:50%;display:block;background:var(--cs-soft)}
