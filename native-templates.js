@@ -235,7 +235,7 @@
       if(state.width-2*state.horizontal<520*scale){row.style.gridTemplateColumns='minmax(0,1fr) minmax(0,1fr)';row.style.columnGap=px(12);row.style.rowGap=px(6);text.style.gridColumn='1 / -1';text.style.gridRow='2';row.lastElementChild.style.gridColumn='2';row.lastElementChild.style.gridRow='1';row.lastElementChild.style.whiteSpace='normal';row.lastElementChild.style.overflowWrap='anywhere';row.lastElementChild.style.textAlign='right';}
     }else if(yt){
       row.style.position='relative';
-      const menu=e('button',{position:'absolute',right:'0',top:px(-12),width:px(40),height:px(40),minHeight:'0',minWidth:'0',padding:px(8),display:'flex',alignItems:'center',justifyContent:'center',border:'0',borderRadius:'50%',background:'transparent',color:ink});menu.type='button';menu.dataset.commentMenu='';menu.setAttribute('aria-label','댓글 작업 메뉴');menu.setAttribute('aria-haspopup','menu');menu.setAttribute('aria-expanded','false');menu.append(icon('kebab',24*scale));row.append(menu);
+      const menu=e('button',{position:'absolute',right:'0',top:px(-12),width:px(40),height:px(40),minHeight:'0',minWidth:'0',padding:px(8),display:'flex',alignItems:'center',justifyContent:'center',border:'0',borderRadius:'50%',background:'transparent',color:ink});menu.type='button';menu.dataset.commentMenu='';menu.dataset.layer='comment-menu';menu.setAttribute('aria-label','댓글 작업 메뉴');menu.setAttribute('aria-haspopup','menu');menu.setAttribute('aria-expanded','false');menu.append(icon('kebab',24*scale));row.append(menu);
       const header=e('div',{display:'flex',alignItems:'baseline',gap:px(4),minHeight:px(18),flexWrap:'wrap',overflowWrap:'anywhere',paddingRight:px(32)});
       header.dataset.layer='header';header.append(e('span',{fontSize:px(12),fontWeight:'500',lineHeight:px(18)},'@'+handle),e('span',{fontSize:px(12),lineHeight:px(18),color:muted},state.date));content.append(header);
       const body=e('div',{marginTop:px(4),lineHeight:px(20)});body.append(text);content.append(body);
@@ -243,7 +243,7 @@
       const actions=e('div',{display:'flex',alignItems:'center',minHeight:px(36),flexWrap:'wrap',rowGap:px(8),marginTop:px(4),fontSize:px(12),lineHeight:px(18)});
       actions.dataset.layer='reactions';actions.append(icon('up',18*scale),e('span',{marginLeft:px(6),marginRight:px(8)},String(state.likes)));
       const dislike=e('span',{width:px(32),display:'flex',justifyContent:'center'});dislike.append(icon('down',18*scale));actions.append(dislike,e('span',{padding:'0 '+px(12),fontWeight:'500'},'답글'));content.append(actions);
-      if(state.replyItems?.length){const thread=e('div',{position:'relative',marginTop:px(4),paddingLeft:px(0)});thread.dataset.replyThread='';state.replyItems.forEach((item,i)=>thread.append(replyElement(context,item,i)));content.append(thread);const collapse=e('div',{display:'flex',alignItems:'center',gap:px(8),marginTop:px(12),fontSize:px(12),fontWeight:'500',color:dark?'#eee':'#0f0f0f'});collapse.append(e('span',{},'답글 숨기기'),icon('chevron',18*scale));collapse.lastElementChild.style.transform='rotate(180deg)';content.append(collapse);}
+      if(state.replyItems?.length){const thread=e('div',{position:'relative',marginTop:px(4),paddingLeft:px(0)});thread.dataset.replyThread='';state.replyItems.forEach((item,i)=>thread.append(replyElement(context,item,i)));content.append(thread);const collapse=e('div',{display:'flex',alignItems:'center',gap:px(8),marginTop:px(12),fontSize:px(12),fontWeight:'500',color:dark?'#eee':'#0f0f0f'});collapse.dataset.layer='reply-collapse';collapse.append(e('span',{},'답글 숨기기'),icon('chevron',18*scale));collapse.lastElementChild.style.transform='rotate(180deg)';content.append(collapse);}
     }else{
       row.style.gap=px(12);pic.style.marginTop='0';
       const header=e('div',{display:'flex',alignItems:'baseline',flexWrap:'wrap',gap:px(4),fontSize:px(14),lineHeight:px(18)});header.dataset.layer='header';header.append(e('span',{fontWeight:'600'},handle),e('span',{color:dark?'#a8a8a8':'#737373'},state.date));content.append(header);
@@ -281,6 +281,7 @@
     }
     const body=root.querySelector('[data-yt-body]');
     if(body){const limit=80*state.font/14;const long=body.scrollHeight>limit+.5;const toggle=root.querySelector('[data-yt-toggle]');toggle.hidden=!long;toggle.style.display=long?'block':'none';if(long&&state.youtubeMode!=='expanded'){Object.assign(body.style,{display:'-webkit-box',webkitBoxOrient:'vertical',webkitLineClamp:'4',overflow:'hidden',maxHeight:limit+'px'});}}
+    for(const layer of root.querySelectorAll('[data-layer]'))if(state.visibility?.[layer.dataset.layer]===false)layer.style.display='none';
     // Read layout pixels: a live preview's ancestor is scaled to fit the screen.
     // getBoundingClientRect() would report screen pixels and shrink saved heights.
     const minH=Math.ceil(parseFloat(getComputedStyle(root).height));
@@ -295,18 +296,7 @@
   function preview({state,avatar,host,interactive=false}){
     const {root}=build({state,avatar,interactive});root.style.position='relative';root.style.left='0';root.style.top='0';
     if(interactive)root.removeAttribute('aria-hidden');host.dataset.interactive=String(interactive);host.replaceChildren(root);
-    const size=measure(root,state);if(interactive)mountVisibilityControls(root,state);return size;
-  }
-  function mountVisibilityControls(root,state){
-    root.querySelectorAll('[data-visibility-toggle]').forEach(n=>n.remove());
-    const makeEye=()=>{const b=document.createElement('button');b.type='button';b.dataset.visibilityToggle='';b.setAttribute('aria-label','요소 표시 전환');b.style.cssText='position:absolute;z-index:5;width:22px;height:22px;min-width:22px;min-height:22px;padding:3px;border:1px solid #d4d4d4;border-radius:50%;background:#f1f1f1;color:#8b8b8b;display:flex;align-items:center;justify-content:center;cursor:pointer';b.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';return b;};
-    const layers=[...root.querySelectorAll('[data-layer]')],anchors=state.visibilityAnchors||{},layerMap=new Map(layers.filter(layer=>layer.getClientRects().length>0).map(layer=>[layer.dataset.layer,layer]));
-    const rect=(layer)=>{const rr=root.getBoundingClientRect(),r=layer.getBoundingClientRect();return {x:r.right-rr.left-18,y:r.top-rr.top-7};};
-    const occupied=[];
-    const place=(button,position)=>{const maxX=Math.max(0,root.clientWidth-22),maxY=Math.max(0,root.clientHeight-22),offsets=[[0,0],[0,24],[0,-24],[0,48],[0,-48],[-24,0],[24,0],[-24,24],[24,24],[-24,-24],[24,-24],[-48,0],[48,0]],base={x:Math.max(0,Math.min(maxX,position.x)),y:Math.max(0,Math.min(maxY,position.y))};let chosen=base;for(const [dx,dy] of offsets){const candidate={x:Math.max(0,Math.min(maxX,base.x+dx)),y:Math.max(0,Math.min(maxY,base.y+dy))};if(!occupied.some(point=>Math.abs(point.x-candidate.x)<22&&Math.abs(point.y-candidate.y)<22)){chosen=candidate;break;}}occupied.push(chosen);button.style.left=chosen.x+'px';button.style.top=chosen.y+'px';};
-    const keys=new Set([...layerMap.keys(),...Object.keys(state.visibility||{}).filter(key=>state.visibility[key]===false&&anchors[key])]);
-    for(const key of keys){const layer=layerMap.get(key),button=makeEye(),wasHidden=state.visibility?.[key]===false;button.dataset.layerKey=key;button.setAttribute('aria-label',`${key} 요소 표시 전환`);button.setAttribute('aria-pressed',String(!wasHidden));button.title=wasHidden?'요소 표시':'요소 숨기기';place(button,wasHidden&&anchors[key]?anchors[key]:layer?rect(layer):{x:0,y:0});root.append(button);}
-    root.addEventListener('click',event=>{const button=event.target.closest('[data-visibility-toggle]');if(!button)return;event.preventDefault();event.stopPropagation();const key=button.dataset.layerKey,visible=state.visibility?.[key]===false,position={x:parseFloat(button.style.left)||0,y:parseFloat(button.style.top)||0};window.dispatchEvent(new CustomEvent('comment-layer-visibility',{detail:{key,visible,position}}));});
+    return measure(root,state);
   }
   async function render({state,avatar,target,guides}){
     const {root,muted}=build({state,avatar});document.body.append(root);
