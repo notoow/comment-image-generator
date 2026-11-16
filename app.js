@@ -45,7 +45,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false,cornerRadii:{tl:31,tr:31,br:31,bl:31},cornerRadiusLinked:true};
     state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     const dateSteps=['방금',...Array.from({length:23},(_,i)=>`${i+1}시간 전`),...Array.from({length:30},(_,i)=>`${i+1}일 전`),...Array.from({length:11},(_,i)=>`${i+1}개월 전`),...Array.from({length:10},(_,i)=>`${i+1}년 전`)];
@@ -77,6 +77,9 @@
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
       state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
       state.height=state.height?Math.max(64,Math.min(8000,Math.round(state.height))):0;
+      if(!state.cornerRadii||typeof state.cornerRadii!=='object')state.cornerRadii={tl:31,tr:31,br:31,bl:31};
+      for(const corner of ['tl','tr','br','bl'])state.cornerRadii[corner]=Math.max(0,Math.min(160,Math.round(Number(state.cornerRadii[corner])||0)));
+      if(typeof state.cornerRadiusLinked!=='boolean')state.cornerRadiusLinked=true;
       if (![12,14,16,20,24,28,32].includes(state.font)) state.font = 14;
       state.opacity = Math.max(0,Math.min(100,state.opacity));
       state.padding = Math.max(16,Math.min(48,state.padding));
@@ -88,6 +91,11 @@
       for (const input of all('[data-key]')) input.value = input.dataset.key==='height'&&!state.height?'':String(state[input.dataset.key]);
     }
     applySaved(savedFor(index));
+    function syncCornerRadiusControls(){
+      for(const input of all('[data-radius-corner]'))input.value=String(state.cornerRadii[input.dataset.radiusCorner]);
+      const link=find('[data-radius-link]');link.setAttribute('aria-pressed',String(state.cornerRadiusLinked));link.dataset.linked=String(state.cornerRadiusLinked);find('[data-radius-link-label]').textContent=state.cornerRadiusLinked?'연결됨':'각각';
+    }
+    syncCornerRadiusControls();
     const replyList=find('[data-reply-list]');
     function updateReplyAvatarPreview(preview,item){
       preview.style.backgroundColor=item.avatarColor;
@@ -148,6 +156,11 @@
     }
     let renderVersion=0;
     const liveHost=find('.cs-live-comment');
+    function cornerRadiusCss(){const r=state.cornerRadii;return `${r.tl}px ${r.tr}px ${r.br}px ${r.bl}px`;}
+    function applyCornerRadius(){
+      const css=cornerRadiusCss(),wrap=find('.cs-image-wrap');canvas.style.borderRadius=css;wrap.style.borderRadius=css;
+      const native=liveHost.querySelector('[data-native-template]');if(native){native.style.borderRadius=css;native.style.overflow='hidden';}
+    }
     const commentMenu=find('.cs-comment-menu');
     function closeCommentMenu(){commentMenu.hidden=true;find('[data-comment-menu]')?.setAttribute('aria-expanded','false');}
     find('.cs-resize-frame').addEventListener('click',event=>{
@@ -165,6 +178,7 @@
     function showEditablePreview(){
       liveHost.hidden=false;canvas.hidden=true;
       const size=CommentNative.preview({state:{...state},avatar:avatarSource(),host:liveHost,interactive:true});
+      applyCornerRadius();
       renderVisibilityEditor();
       resizer.update(size,{live:true});find('[data-comment-menu]')?.setAttribute('aria-expanded',String(!commentMenu.hidden));sizeLabels(size);return size;
     }
@@ -204,14 +218,31 @@
         find('[data-key="width"]').value=state.width;find('[data-key="height"]').value=state.height||'';
         sizeLabels(size);return size;
       },
+      onRadiusChange({corner,value}){
+        const radius=Math.max(0,Math.min(160,Math.round(value)));
+        if(state.cornerRadiusLinked)state.cornerRadii={tl:radius,tr:radius,br:radius,bl:radius};
+        else state.cornerRadii[corner]=radius;
+        syncCornerRadiusControls();applyCornerRadius();return radius;
+      },
       onEnd(){persist();render();},
       onError(error){find('[data-status]').textContent=error.userMessage||'이 크기로 조절할 수 없습니다. 다른 크기를 선택해 주세요.';}
+    });
+    for(const input of all('[data-radius-corner]'))input.addEventListener('input',()=>{
+      const corner=input.dataset.radiusCorner,value=Math.max(0,Math.min(160,Math.round(Number(input.value)||0)));
+      if(state.cornerRadiusLinked)state.cornerRadii={tl:value,tr:value,br:value,bl:value};else state.cornerRadii[corner]=value;
+      syncCornerRadiusControls();applyCornerRadius();queueRender();persist();
+    });
+    find('[data-radius-link]').addEventListener('click',()=>{
+      state.cornerRadiusLinked=!state.cornerRadiusLinked;
+      if(state.cornerRadiusLinked){const value=state.cornerRadii.tl;state.cornerRadii={tl:value,tr:value,br:value,bl:value};}
+      syncCornerRadiusControls();applyCornerRadius();queueRender();persist();
     });
     find('[data-fit]').addEventListener('click',()=>resizer.fit());
     find('[data-auto-height]').addEventListener('click',()=>{state.height=0;find('[data-key="height"]').value='';render();persist();});
     async function render(){
       const version=++renderVersion;canvas.setAttribute("aria-busy","true");
       closeCommentMenu();app.dataset.imageTheme=state.theme;
+      syncCornerRadiusControls();applyCornerRadius();
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
       find('[data-youtube-only]').hidden=state.platform!=='youtube';
@@ -245,6 +276,7 @@
         const temp=document.createElement('canvas');const size=await paint(temp,state.guides);const {w,h,overflow}=size;
         if(version!==renderVersion)return;
         rendered=true;canvas.dataset.layoutOverflow=String(overflow);canvas.width=temp.width;canvas.height=temp.height;canvas.getContext('2d').drawImage(temp,0,0);
+        applyCornerRadius();
         if(state.height){state.height=h;find('[data-key="height"]').value=h;persist();}
         sizeLabels(size);if(['youtube','instagram'].includes(state.platform))showEditablePreview();else resizer.update(size);
       } catch(error) {

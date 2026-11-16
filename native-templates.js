@@ -216,7 +216,8 @@
     if(!renderers[state.platform] && !['youtube','instagram','dc'].includes(state.platform))throw new Error('지원하지 않는 플랫폼입니다.');
     const yt=state.platform==='youtube',dark=state.theme==='dark',scale=state.font/14;
     const px=v=>v*scale+'px',ink=dark?'#f1f1f1':'#0f0f0f',muted=dark?'#aaa':'#606060';
-    const root=e('div',{position:'absolute',left:'-100000px',top:'0',width:state.width+'px',padding:`${state.padding}px ${state.horizontal}px`,boxSizing:'border-box',overflowWrap:'anywhere',backgroundColor:dark?`rgba(15,15,15,${state.opacity/100})`:`rgba(255,255,255,${state.opacity/100})`,color:ink,fontFamily:yt?'Roboto, Arial, sans-serif':'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',fontSize:px(14),lineHeight:px(yt?20:18)});
+    const radii=state.cornerRadii||{tl:31,tr:31,br:31,bl:31};
+    const root=e('div',{position:'absolute',left:'-100000px',top:'0',width:state.width+'px',padding:`${state.padding}px ${state.horizontal}px`,boxSizing:'border-box',overflowWrap:'anywhere',overflow:'hidden',borderRadius:`${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`,backgroundColor:dark?`rgba(15,15,15,${state.opacity/100})`:`rgba(255,255,255,${state.opacity/100})`,color:ink,fontFamily:yt?'Roboto, Arial, sans-serif':'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',fontSize:px(14),lineHeight:px(yt?20:18)});
     const row=e('div',{display:'flex',alignItems:'flex-start',gap:px(yt?16:18)});row.className='cs-comment-row';
     const pic=e('img',{width:px(yt?36:32),height:px(yt?36:32),borderRadius:'50%',flex:'none',marginTop:yt?'0':px(7)});pic.className='cs-native-avatar';pic.dataset.layer='avatar';pic.src=avatar.toDataURL();row.append(pic);
     const content=e('div',{minWidth:'0',flex:'1'});row.append(content);root.append(row);

@@ -9,7 +9,7 @@
       height:/[ns]/.test(edge)?clamp(start.h+(edge.includes('n')?-dy:dy)/scale,64,Math.min(8000,Math.floor(8000000/width))):Math.min(start.height,Math.floor(8000000/width))
     };
   }
-  function mount({frame,area,canvas,host,ghost,tooltip,getState,onStart,onChange,onEnd,onError=()=>{}}){
+  function mount({frame,area,canvas,host,ghost,tooltip,getState,onStart,onChange,onRadiusChange=()=>{},onEnd,onError=()=>{}}){
     let metrics={w:getState().width,h:200},scale=1,drag=null,raf=0,lastMove=null;
     function fit(){
       const widthScale=(area.clientWidth-16)/Math.max(960,metrics.w);
@@ -19,7 +19,13 @@
     function layout(){
       frame.style.width=metrics.w*scale+'px';frame.style.height=metrics.h*scale+'px';
       host.style.width=metrics.w+'px';host.style.transform=`scale(${scale})`;
-      tooltip.textContent=`${metrics.w} × ${metrics.h} px`;
+      tooltip.textContent=`${metrics.w} × ${metrics.h} px`;tooltip.style.left='';tooltip.style.right='0';tooltip.style.top='-36px';tooltip.style.bottom='';
+      const radii=getState().cornerRadii||{tl:31,tr:31,br:31,bl:31};
+      for(const handle of frame.querySelectorAll('[data-radius-handle]')){
+        const corner=handle.dataset.radiusHandle,radius=(Number(radii[corner])||0)*scale;
+        handle.style.left=corner.endsWith('l')?radius+'px':'';handle.style.right=corner.endsWith('r')?radius+'px':'';
+        handle.style.top=corner.startsWith('t')?'0':'';handle.style.bottom=corner.startsWith('b')?'0':'';
+      }
     }
     function update(size,{live=false}={}){
       metrics=size;frame.style.transform='';frame.dataset.resizing='false';
@@ -27,6 +33,16 @@
     }
     function apply(){
       raf=0;if(!drag||!lastMove)return;
+      if(drag.kind==='radius'){
+        const dx=(lastMove.x-drag.x)*(drag.corner.endsWith('l')?1:-1);
+        const dy=(lastMove.y-drag.y)*(drag.corner.startsWith('t')?1:-1);
+        const value=clamp(drag.radius+(dx+dy)/Math.SQRT2/drag.scale,0,160);
+        try{onRadiusChange({corner:drag.corner,value,live:true});}catch(error){finish(true);onError(error);return;}
+        layout();tooltip.textContent=`R: ${value} px`;
+        const right=drag.corner.endsWith('r'),bottom=drag.corner.startsWith('b');
+        tooltip.style.left=right?'auto':'0';tooltip.style.right=right?'0':'auto';tooltip.style.top=bottom?'auto':'-36px';tooltip.style.bottom=bottom?'-36px':'';
+        return;
+      }
       const next=dimensions(drag,drag.edge,lastMove.x-drag.x,lastMove.y-drag.y,drag.scale);
       try{metrics=onChange(next);}catch(error){finish(true);onError(error);return;}layout();
       // Keep the opposite edges under their original screen positions while dragging.
@@ -42,16 +58,23 @@
       if(!drag)return;
       const previous=drag;drag=null;lastMove=null;
       if(previous.handle.hasPointerCapture(previous.pointerId))previous.handle.releasePointerCapture(previous.pointerId);
-      if(cancel)metrics=onChange({width:previous.width,height:previous.height});
+      if(cancel){
+        if(previous.kind==='radius')onRadiusChange({corner:previous.corner,value:previous.radius,live:false});
+        else metrics=onChange({width:previous.width,height:previous.height});
+      }
       ghost.hidden=true;frame.dataset.resizing='false';frame.style.transform='';fit();onEnd();
     }
     frame.addEventListener('pointerdown',event=>{
-      const handle=event.target.closest('[data-resize]');
+      const radiusHandle=event.target.closest('[data-radius-handle]');
+      const handle=radiusHandle||event.target.closest('[data-resize]');
       if(!handle||event.button!==0||drag||!canvas.width||canvas.getAttribute('aria-busy')==='true')return;
       event.preventDefault();handle.focus({preventScroll:true});
-      const state=getState(),rect=frame.getBoundingClientRect();
-      drag={width:state.width,height:state.height,h:metrics.h,edge:handle.dataset.resize,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId};
-      onStart();metrics=onChange({width:state.width,height:state.height});layout();
+      const state=getState(),rect=frame.getBoundingClientRect(),corner=radiusHandle?.dataset.radiusHandle;
+      drag=radiusHandle
+        ?{kind:'radius',corner,radius:Number(state.cornerRadii?.[corner])||0,width:state.width,height:state.height,h:metrics.h,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId}
+        :{kind:'resize',width:state.width,height:state.height,h:metrics.h,edge:handle.dataset.resize,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId};
+      onStart();
+      if(!radiusHandle){metrics=onChange({width:state.width,height:state.height});layout();}
       frame.dataset.resizing='true';ghost.hidden=false;
       Object.assign(ghost.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});
       handle.setPointerCapture(event.pointerId);
@@ -68,7 +91,13 @@
     frame.addEventListener('lostpointercapture',()=>finish());
     frame.addEventListener('keydown',event=>{
       if(event.key==='Escape'&&drag){event.preventDefault();finish(true);return;}
-      const handle=event.target.closest('[data-resize]');if(!handle||drag)return;
+      if(drag)return;
+      const radiusHandle=event.target.closest('[data-radius-handle]');
+      if(radiusHandle&&['ArrowRight','ArrowUp','ArrowLeft','ArrowDown'].includes(event.key)){
+        event.preventDefault();const step=event.shiftKey?10:1,corner=radiusHandle.dataset.radiusHandle,current=Number(getState().cornerRadii?.[corner])||0;
+        const value=current+(['ArrowRight','ArrowUp'].includes(event.key)?step:-step);onStart();onRadiusChange({corner,value,live:false});onEnd();return;
+      }
+      const handle=event.target.closest('[data-resize]');if(!handle)return;
       const step=event.shiftKey?10:1,edge=handle.dataset.resize;
       let dx=0,dy=0;
       if(/[ew]/.test(edge)&&['ArrowLeft','ArrowRight'].includes(event.key))dx=event.key==='ArrowRight'?step:-step;

@@ -195,5 +195,28 @@
 #comment-image-generator .cs-visibility-item:focus-visible{outline:2px solid #171717;outline-offset:2px}
 #comment-image-generator .cs-visibility-state{flex:none;padding:4px 7px;border-radius:999px;background:#eee;color:#555;font-size:10px;font-weight:600;line-height:1.2}
 #comment-image-generator .cs-visibility-item[aria-pressed="false"] .cs-visibility-state{background:#fff0ef;color:#b64b45}
+#comment-image-generator .cs-visibility-editor>summary{list-style:none;cursor:pointer}
+#comment-image-generator .cs-visibility-editor>summary::-webkit-details-marker{display:none}
+#comment-image-generator .cs-visibility-editor>summary:after{content:"+";font-size:16px;color:var(--cs-muted);font-weight:400}
+#comment-image-generator .cs-visibility-editor[open]>summary:after{content:"−"}
+#comment-image-generator .cs-visibility-editor:not([open]) .cs-help,#comment-image-generator .cs-visibility-editor:not([open]) .cs-visibility-list{display:none}
+#comment-image-generator .cs-radius-editor{padding-top:16px;border-top:1px solid var(--cs-line)}
+#comment-image-generator .cs-radius-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#comment-image-generator .cs-app .cs-radius-link{display:flex;align-items:center;gap:6px;min-height:30px;padding:5px 8px;border:1px solid var(--cs-line);border-radius:4px;background:var(--cs-soft);font-size:10px;color:var(--cs-muted)}
+#comment-image-generator .cs-radius-link svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#comment-image-generator .cs-radius-link[data-linked=true]{color:var(--cs-ink);background:var(--cs-bg)}
+#comment-image-generator .cs-radius-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#comment-image-generator .cs-radius-grid label{display:grid;gap:5px;min-width:0;color:var(--cs-muted);font-size:10px}
+#comment-image-generator .cs-radius-grid label>div{display:flex;align-items:center;gap:5px;min-width:0}
+#comment-image-generator .cs-app .cs-radius-grid input{width:100%;min-width:0;padding:8px 7px;font-size:11px;font-variant-numeric:tabular-nums}
+#comment-image-generator .cs-radius-grid label>div>span{flex:none;font-size:10px;color:var(--cs-muted)}
+#comment-image-generator .cs-app .cs-radius-handle{position:absolute;z-index:8;width:15px;height:15px;min-width:15px;min-height:15px;padding:0;border:0;border-radius:50%;background:transparent;transform:translate(-50%,-50%);touch-action:none;cursor:move;opacity:0}
+#comment-image-generator .cs-app .cs-radius-handle:hover{background:transparent}
+#comment-image-generator .cs-radius-handle:after{content:"";position:absolute;inset:3px;border:1px solid #5a78d1;border-radius:50%;background:#fff;box-shadow:0 0 0 1px #fff;opacity:0}
+#comment-image-generator .cs-resize-frame:hover .cs-radius-handle,#comment-image-generator .cs-resize-frame:focus-within .cs-radius-handle,#comment-image-generator .cs-resize-frame[data-resizing=true] .cs-radius-handle{opacity:1}
+#comment-image-generator .cs-resize-frame:hover .cs-radius-handle:after,#comment-image-generator .cs-resize-frame:focus-within .cs-radius-handle:after,#comment-image-generator .cs-resize-frame[data-resizing=true] .cs-radius-handle:after{opacity:1}
+#comment-image-generator .cs-app .cs-radius-handle:focus{outline:none}
+#comment-image-generator .cs-app .cs-radius-handle:focus-visible:after{outline:2px solid #171717;outline-offset:2px}
+@media(pointer:coarse){#comment-image-generator .cs-app .cs-radius-handle{opacity:1}}
 @media(max-width:800px){#comment-image-generator .cs-reply-profile{grid-template-columns:36px 48px minmax(0,1fr);gap:6px}}
 @media(max-width:650px){#comment-image-generator .cs-app .cs-work{flex:none;height:auto;min-height:0}#comment-image-generator .cs-controls{max-height:none;overflow:visible}#comment-image-generator .cs-stage{height:360px;min-height:240px;flex:none}#comment-image-generator .cs-resize-area{flex:none;min-height:250px}}
