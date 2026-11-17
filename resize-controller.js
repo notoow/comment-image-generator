@@ -73,7 +73,8 @@
         if(previous.kind==='radius')onRadiusChange({corner:previous.corner,value:previous.radius,live:false});
         else metrics=onChange({width:previous.width,height:previous.height});
       }
-      ghost.hidden=true;frame.dataset.resizing='false';frame.style.transform='';fit();onEnd();
+      ghost.hidden=true;frame.dataset.resizing='false';frame.style.transform='';
+      calculateFit();scale=Math.max(.05,Math.min(3,fitScale*zoom));layout();updateZoomLabel();onEnd();
     }
     frame.addEventListener('pointerdown',event=>{
       const radiusHandle=event.target.closest('[data-radius-handle]');
