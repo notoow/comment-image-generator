@@ -55,3 +55,15 @@ GitHub Pages: `main` 브랜치의 루트(`/`). `.nojekyll`로 정적 파일을 �
 - Roboto: `assets/Roboto-OFL.txt`
 - html-to-image 1.11.13: `assets/vendor/html-to-image-LICENSE.txt`
 - OG 이미지: OpenAI 내장 이미지 생성 도구로 제작. 프롬프트는 `docs/og-image-prompt.txt`.
+
+## 언어와 프로필 편집
+
+앱 상단에서 소개 사이트와 동일한 22개 언어를 선택할 수 있습니다. 브라우저 언어를 기본으로 사용하며 선택은 저장됩니다. `?lang=en`, `?lang=ko`, `?lang=zh_CN`으로 직접 연결할 수 있습니다. 사용자 입력 댓글·아이디는 언어 변경 시 번역하거나 덮어쓰지 않습니다.
+
+아이디는 한글·영어 혼합을 기본으로 하며, 한글 전체·색상·음식·자연어·영어 조합을 선택할 수 있습니다. 숫자 없음, 출생연도, 생일을 같은 확률로 섞고 최근 80개 기본 조합을 피합니다.
+
+대댓글은 원문과 같은 프로필 스타일·사진 업로드·색상·이니셜·랜덤 생성·아이디·본문·작성 시점·좋아요 편집을 제공합니다. 각 대댓글의 × 버튼으로 삭제합니다. 디자인 탭의 여백과 모서리 반지름 수치 설정은 기본적으로 접혀 있습니다.
+
+번역 카탈로그 검증 및 번들 재생성: `node scripts/build-i18n.mjs`
+랜덤 생성 회귀 검사: `node --test tests/random-generators.test.cjs`
+자세한 검증 범위와 번역 검수 수준은 [검증 기록](docs/i18n-reply-verification.md)을 참고하세요.
