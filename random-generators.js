@@ -20,7 +20,7 @@
   function englishName() {
     const birth=birthday(),yy=String(birth.getUTCFullYear()).slice(-2),mmdd=String(birth.getUTCMonth()+1).padStart(2,'0')+String(birth.getUTCDate()).padStart(2,'0');
     const pair=pick([[pick(adjectives),pick(nouns)],[pick(adjectives),pick(names)],[pick(names),pick(nouns)],[pick(nouns),pick(nouns)]]);
-    return '@'+pair.join(pick(['','_','.']))+pick([yy,mmdd,yy+mmdd]);
+    return '@'+pair.join(pick(['','_','.']))+pick(['',yy,mmdd]);
   }
   function avatarColor(previous, palette) {
     return pick(palette.filter(color=>color.toLowerCase()!==String(previous).toLowerCase()));
