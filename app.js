@@ -83,8 +83,8 @@
       if(typeof state.cornerRadiusLinked!=='boolean')state.cornerRadiusLinked=true;
       if (![12,14,16,20,24,28,32].includes(state.font)) state.font = 14;
       state.opacity = Math.max(0,Math.min(100,state.opacity));
-      state.padding = Math.max(16,Math.min(48,state.padding));
-      state.horizontal = Math.max(16,Math.min(64,state.horizontal));
+      state.padding = Math.max(0,Math.min(400,state.padding));
+      state.horizontal = Math.max(0,Math.min(400,(state.width-128)/2,state.horizontal));
       state.text = state.text.slice(0,4000);state.handle=state.handle.slice(0,60);state.date=state.date.slice(0,30);
       for(const key of ['likes','replies']) state[key]=Math.max(0,Math.min(99999,Math.floor(state[key])));
       state.postNumber=Math.max(1,Math.min(999999999,Math.floor(state.postNumber)));
@@ -205,15 +205,23 @@
       }
       if(!list.childElementCount){const empty=document.createElement('p');empty.className='cs-help';empty.textContent=CommentI18n.t("조절할 요소가 없습니다.");list.append(empty);}
     }
+    function syncPaddingControls(){
+      const maxHorizontal=Math.max(0,Math.min(400,Math.floor((state.width-128)/2)));
+      state.padding=Math.round(Math.max(0,Math.min(400,state.padding)));
+      state.horizontal=Math.round(Math.max(0,Math.min(maxHorizontal,state.horizontal)));
+      find('[data-key="horizontal"]').max=String(maxHorizontal);
+      for(const key of ['padding','horizontal']){find('[data-key="'+key+'"]').value=state[key];find('[data-'+key+']').textContent=state[key]+' px';}
+    }
     const resizer=CommentResize.mount({
       frame:find('.cs-resize-frame'),area:find('.cs-resize-area'),canvas,host:liveHost,
       ghost:find('.cs-resize-origin'),tooltip:find('.cs-resize-tooltip'),getState:()=>state,
       onStart(){clearTimeout(inputTimer);++renderVersion;canvas.setAttribute('aria-busy','true');find('[data-download]').disabled=true;},
       onChange(next){
-        Object.assign(state,next);canvas.hidden=true;liveHost.hidden=false;
+        Object.assign(state,next);syncPaddingControls();canvas.hidden=true;liveHost.hidden=false;
         const size=CommentNative.preview({state:{...state},avatar:avatarSource(),host:liveHost});
         if(state.height)state.height=size.h;
         find('[data-key="width"]').value=state.width;find('[data-key="height"]').value=state.height||'';
+        for(const key of ['padding','horizontal']){find('[data-key="'+key+'"]').value=state[key];find('[data-'+key+']').textContent=state[key]+' px';}
         sizeLabels(size);return size;
       },
       onRadiusChange({corner,value}){
@@ -241,7 +249,7 @@
     find('[data-auto-height]').addEventListener('click',()=>{state.height=0;find('[data-key="height"]').value='';render();persist();});
     async function render(){
       const version=++renderVersion;canvas.setAttribute("aria-busy","true");
-      closeCommentMenu();app.dataset.imageTheme=state.theme;
+      closeCommentMenu();syncPaddingControls();app.dataset.imageTheme=state.theme;
       syncCornerRadiusControls();applyCornerRadius();
       const platform=platforms.find(p=>p.id===state.platform),board=['futaba','fivech'].includes(state.platform);
       find('[data-selected-name]').textContent=platform.name;find('[data-selected-local]').textContent=platform.local;find('[data-selected-symbol]').textContent=platform.symbol;
@@ -292,6 +300,7 @@
       const key=input.dataset.key;if(key==='avatarMode')uploadVersion++;state[key]=numeric.has(key)?Math.max(Number(input.min||0),Math.min(Number(input.max||99999),Number(input.value)||0)):input.value;
       if(['likes','replies'].includes(key))state[key]=Math.floor(state[key]);
       if(key==='replies')state.genericReplies=state[key];
+      if(['width','padding','horizontal'].includes(key))syncPaddingControls();
       queueRender();persist();
     });
     find('[data-key="date"]').addEventListener('input',syncDateSlider);

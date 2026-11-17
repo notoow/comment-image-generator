@@ -4,11 +4,14 @@
   const clamp=(value,min,max)=>Math.round(Math.max(min,Math.min(max,value)));
   function dimensions(start,edge,dx,dy,scale=1){
     const width=/[ew]/.test(edge)?clamp(start.width+(edge.includes('w')?-dx:dx)/scale,240,1600):start.width;
+    const height=/[ns]/.test(edge)?clamp(start.h+(edge.includes('n')?-dy:dy)/scale,64,Math.min(8000,Math.floor(8000000/width))):Math.min(start.height,Math.floor(8000000/width));
     return {
-      width,
-      height:/[ns]/.test(edge)?clamp(start.h+(edge.includes('n')?-dy:dy)/scale,64,Math.min(8000,Math.floor(8000000/width))):Math.min(start.height,Math.floor(8000000/width))
+      width,height,
+      horizontal:/[ew]/.test(edge)?clamp((start.horizontal??24)+(width-start.width)/2,0,Math.min(400,(width-128)/2)):(start.horizontal??24),
+      padding:/[ns]/.test(edge)?clamp((start.padding??24)+(height-start.h)/2,0,400):(start.padding??24)
     };
   }
+
   function mount({frame,area,canvas,host,ghost,tooltip,getState,onStart,onChange,onRadiusChange=()=>{},onEnd,onError=()=>{}}){
     let metrics={w:getState().width,h:200},scale=1,fitScale=1,zoom=1,drag=null,raf=0,lastMove=null;
     function calculateFit(){
@@ -71,7 +74,7 @@
       if(previous.handle.hasPointerCapture(previous.pointerId))previous.handle.releasePointerCapture(previous.pointerId);
       if(cancel){
         if(previous.kind==='radius')onRadiusChange({corner:previous.corner,value:previous.radius,live:false});
-        else metrics=onChange({width:previous.width,height:previous.height});
+        else metrics=onChange({width:previous.width,height:previous.height,padding:previous.padding,horizontal:previous.horizontal});
       }
       ghost.hidden=true;frame.dataset.resizing='false';frame.style.transform='';
       calculateFit();scale=Math.max(.05,Math.min(3,fitScale*zoom));layout();updateZoomLabel();onEnd();
@@ -84,7 +87,7 @@
       const state=getState(),rect=frame.getBoundingClientRect(),corner=radiusHandle?.dataset.radiusHandle;
       drag=radiusHandle
         ?{kind:'radius',corner,radius:Number(state.cornerRadii?.[corner])||0,width:state.width,height:state.height,h:metrics.h,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId}
-        :{kind:'resize',width:state.width,height:state.height,h:metrics.h,edge:handle.dataset.resize,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId};
+        :{kind:'resize',padding:state.padding,horizontal:state.horizontal,width:state.width,height:state.height,h:metrics.h,edge:handle.dataset.resize,x:event.clientX,y:event.clientY,scale,rect,handle,pointerId:event.pointerId};
       onStart();
       if(!radiusHandle){metrics=onChange({width:state.width,height:state.height});layout();}
       frame.dataset.resizing='true';ghost.hidden=false;
@@ -115,7 +118,7 @@
       if(/[ew]/.test(edge)&&['ArrowLeft','ArrowRight'].includes(event.key))dx=event.key==='ArrowRight'?step:-step;
       if(/[ns]/.test(edge)&&['ArrowUp','ArrowDown'].includes(event.key))dy=event.key==='ArrowDown'?step:-step;
       if(!dx&&!dy)return;event.preventDefault();
-      const previous={width:getState().width,height:getState().height};
+      const previous={width:getState().width,height:getState().height,padding:getState().padding,horizontal:getState().horizontal};
       onStart();
       try{metrics=onChange(dimensions({...getState(),h:metrics.h},edge,dx,dy));layout();onEnd();}
       catch(error){metrics=onChange(previous);onEnd();onError(error);}
