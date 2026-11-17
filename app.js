@@ -45,7 +45,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false,cornerRadii:{tl:0,tr:0,br:0,bl:0},cornerRadiusLinked:true};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'alphabet',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false,cornerRadii:{tl:0,tr:0,br:0,bl:0},cornerRadiusLinked:true};
     state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     const dateSteps=['방금',...Array.from({length:23},(_,i)=>`${i+1}시간 전`),...Array.from({length:30},(_,i)=>`${i+1}일 전`),...Array.from({length:11},(_,i)=>`${i+1}개월 전`),...Array.from({length:10},(_,i)=>`${i+1}년 전`)];
@@ -325,7 +325,7 @@
     });
     all('[data-avatar-color]').forEach(button=>button.addEventListener('click',()=>{state.avatarColor=button.dataset.avatarColor;find('[data-key="avatarColor"]').value=state.avatarColor;render();persist();}));
     find('[data-random-avatar]').addEventListener('click',()=>{
-      uploadVersion++;state.avatarSeed=CommentRandom.avatarSeed(state.avatarSeed);state.avatarMode='random';state.avatarColor=palette[state.avatarSeed%palette.length];find('[data-key="avatarColor"]').value=state.avatarColor;
+      uploadVersion++;state.avatarSeed=CommentRandom.avatarSeed(state.avatarSeed);if(!['default','initials'].includes(state.avatarMode))state.avatarMode='random';state.avatarColor=CommentRandom.avatarColor(state.avatarColor,palette);find('[data-key="avatarColor"]').value=state.avatarColor;
       find('[data-key="avatarMode"]').value=state.avatarMode;render();persist();
     });
     find('[data-upload]').addEventListener('click',()=>find('[data-file]').click());

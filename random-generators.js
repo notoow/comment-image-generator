@@ -7,7 +7,24 @@
   const tastes = ['바삭한', '따끈한', '달콤한', '매콤한', '쫄깃한', '고소한', '촉촉한', '포슬한'];
   const foods = ['만두', '김밥', '떡볶이', '우동', '라면', '감자', '푸딩', '토스트', '붕어빵', '마카롱', '도넛', '피자', '쿠키', '소금빵', '와플', '딸기'];
   const phrases = ['오늘도천천히', '잠깐쉬어가는중', '창밖을보는중', '그냥지나가던사람', '조금늦어도괜찮아', '이따가또만나요', '괜히웃음이나', '오늘은기분좋아', '느긋하게걷는중', '아무생각없는날', '한번더생각해볼게', '그럴수도있지', '나중에다시올게', '커피한잔하는중', '지금은쉬는시간', '내일도맑았으면', '어쩌다여기까지', '조용히구경하는중', '밥먹고생각하자', '집에가고싶은날', '슬쩍들렀다가요', '아직꿈꾸는중', '별일없이잘지내', '조금씩좋아지는중'];
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  const adjectives = ['quiet','mellow','sunny','silver','golden','gentle','happy','tiny','little','wild','soft','bright','calm','warm','cool','fresh','sleepy','lucky','cozy','misty','blue','green','amber','rosy','swift','slow','kind','brave','sweet','dreamy','early','late','hidden','winter','summer','autumn','spring','daily','urban','lunar'];
+  const nouns = ['river','forest','meadow','cloud','moon','star','sunrise','sunset','ocean','breeze','rain','snow','leaf','maple','cedar','willow','daisy','lily','rose','peach','cherry','coffee','tea','cookie','panda','otter','fox','owl','robin','sparrow','tiger','rabbit','music','sketch','story','garden','wanderer','traveler','morning','weekend'];
+  const names = ['alex','jamie','jordan','taylor','casey','morgan','riley','avery','robin','sam','charlie','jessie','emma','olivia','mia','ella','sophie','lucy','grace','lily','chloe','nora','james','oliver','noah','liam','ethan','leo','owen','henry','jack','luke','daniel','david','anna','claire','julia','alice','rose','ben'];
+  function birthday(now = new Date()) {
+    // Inclusive ages 20–79; UTC calendar dates avoid DST-length days.
+    const end = Date.UTC(now.getFullYear()-20,now.getMonth(),now.getDate());
+    const start = Date.UTC(now.getFullYear()-80,now.getMonth(),now.getDate()+1);
+    const days = Math.floor((end-start)/86400000)+1;
+    return new Date(start+(crypto.getRandomValues(new Uint32Array(1))[0]%days)*86400000);
+  }
+  function englishName() {
+    const birth=birthday(),yy=String(birth.getUTCFullYear()).slice(-2),mmdd=String(birth.getUTCMonth()+1).padStart(2,'0')+String(birth.getUTCDate()).padStart(2,'0');
+    const pair=pick([[pick(adjectives),pick(nouns)],[pick(adjectives),pick(names)],[pick(names),pick(nouns)],[pick(nouns),pick(nouns)]]);
+    return '@'+pair.join(pick(['','_','.']))+pick([yy,mmdd,yy+mmdd]);
+  }
+  function avatarColor(previous, palette) {
+    return pick(palette.filter(color=>color.toLowerCase()!==String(previous).toLowerCase()));
+  }
   const styles = Object.freeze(['color', 'food', 'phrase', 'alphabet']);
 
   function name(style = 'phrase', previous = '') {
@@ -15,8 +32,7 @@
     let result;
     do {
       if (style === 'alphabet') {
-        const length = 8 + pick([0, 1, 2, 3, 4, 5, 6]);
-        result = '@' + Array.from({length}, () => pick(alphabet)).join('');
+        result = englishName();
       } else {
         const word = style === 'color' ? pick(colors) + pick(colorEndings)
           : style === 'food' ? pick(tastes) + pick(foods) : pick(phrases);
@@ -31,5 +47,5 @@
     return next === previous ? (next + 1) % 100000 : next;
   }
 
-  globalThis.CommentRandom = Object.freeze({styles, name, avatarSeed});
+  globalThis.CommentRandom = Object.freeze({styles, name, avatarSeed, avatarColor, birthday});
 })();
