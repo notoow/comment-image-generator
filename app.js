@@ -45,7 +45,7 @@
   [first].forEach((app,index) => {
     const find = selector => app.querySelector(selector);
     const all = selector => [...app.querySelectorAll(selector)];
-    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false,cornerRadii:{tl:31,tr:31,br:31,bl:31},cornerRadiusLinked:true};
+    const state = {platform:'tiktok',theme:'light',panel:'content',handle:'@slow_morning',nameStyle:'phrase',text:find('[data-key="text"]').value,replyItems:[],visibility:{},date:'9일 전',likes:24,replies:3,genericReplies:3,postNumber:123456,avatarMode:'default',avatarSeed:0,avatarColor:'#5f6dc5',avatarText:'KS',youtubeMode:'collapsed',opacity:100,width:960,height:0,font:14,padding:24,horizontal:24,guides:false,cornerRadii:{tl:0,tr:0,br:0,bl:0},cornerRadiusLinked:true};
     state.replyIndex=1;state.boardId='aB3cD4eF0';state.tiebaMode='floor';state.region='';
     const numeric = new Set(['likes','replies','postNumber','replyIndex','opacity','width','height','font','padding','horizontal']);
     const dateSteps=['방금',...Array.from({length:23},(_,i)=>`${i+1}시간 전`),...Array.from({length:30},(_,i)=>`${i+1}일 전`),...Array.from({length:11},(_,i)=>`${i+1}개월 전`),...Array.from({length:10},(_,i)=>`${i+1}년 전`)];
@@ -77,7 +77,7 @@
       if (!['content','design'].includes(state.panel)) state.panel = 'content';
       state.width=Math.max(240,Math.min(1600,Math.round(state.width)));
       state.height=state.height?Math.max(64,Math.min(8000,Math.round(state.height))):0;
-      if(!state.cornerRadii||typeof state.cornerRadii!=='object')state.cornerRadii={tl:31,tr:31,br:31,bl:31};
+      if(!state.cornerRadii||typeof state.cornerRadii!=='object')state.cornerRadii={tl:0,tr:0,br:0,bl:0};
       for(const corner of ['tl','tr','br','bl'])state.cornerRadii[corner]=Math.max(0,Math.min(160,Math.round(Number(state.cornerRadii[corner])||0)));
       if(typeof state.cornerRadiusLinked!=='boolean')state.cornerRadiusLinked=true;
       if (![12,14,16,20,24,28,32].includes(state.font)) state.font = 14;
@@ -90,7 +90,9 @@
       state.replyIndex=Math.max(1,Math.min(999999,Math.floor(state.replyIndex)));state.boardId=state.boardId.slice(0,30);
       for (const input of all('[data-key]')) input.value = input.dataset.key==='height'&&!state.height?'':String(state[input.dataset.key]);
     }
-    applySaved(savedFor(index));
+    const saved=savedFor(index);
+    if(saved.cornerRadii&&['tl','tr','br','bl'].every(corner=>Number(saved.cornerRadii[corner])===31))saved.cornerRadii={tl:0,tr:0,br:0,bl:0};
+    applySaved(saved);
     function syncCornerRadiusControls(){
       for(const input of all('[data-radius-corner]'))input.value=String(state.cornerRadii[input.dataset.radiusCorner]);
       const link=find('[data-radius-link]');link.setAttribute('aria-pressed',String(state.cornerRadiusLinked));link.dataset.linked=String(state.cornerRadiusLinked);find('[data-radius-link-label]').textContent=state.cornerRadiusLinked?'연결됨':'각각';

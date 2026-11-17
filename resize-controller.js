@@ -20,7 +20,7 @@
       frame.style.width=metrics.w*scale+'px';frame.style.height=metrics.h*scale+'px';
       host.style.width=metrics.w+'px';host.style.transform=`scale(${scale})`;
       tooltip.textContent=`${metrics.w} × ${metrics.h} px`;tooltip.style.left='';tooltip.style.right='0';tooltip.style.top='-36px';tooltip.style.bottom='';
-      const radii=getState().cornerRadii||{tl:31,tr:31,br:31,bl:31};
+      const radii=getState().cornerRadii||{tl:0,tr:0,br:0,bl:0};
       for(const handle of frame.querySelectorAll('[data-radius-handle]')){
         const corner=handle.dataset.radiusHandle,radius=(Number(radii[corner])||0)*scale;
         handle.style.left=corner.endsWith('l')?radius+'px':'';handle.style.right=corner.endsWith('r')?radius+'px':'';
