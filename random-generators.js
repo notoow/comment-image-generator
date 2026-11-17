@@ -17,10 +17,13 @@
     const days = Math.floor((end-start)/86400000)+1;
     return new Date(start+(crypto.getRandomValues(new Uint32Array(1))[0]%days)*86400000);
   }
-  function englishName() {
+  function nameSuffix() {
     const birth=birthday(),yy=String(birth.getUTCFullYear()).slice(-2),mmdd=String(birth.getUTCMonth()+1).padStart(2,'0')+String(birth.getUTCDate()).padStart(2,'0');
+    return pick(['',yy,mmdd]);
+  }
+  function englishName() {
     const pair=pick([[pick(adjectives),pick(nouns)],[pick(adjectives),pick(names)],[pick(names),pick(nouns)],[pick(nouns),pick(nouns)]]);
-    return '@'+pair.join(pick(['','_','.']))+pick(['',yy,mmdd]);
+    return '@'+pair.join(pick(['','_','.']))+nameSuffix();
   }
   function avatarColor(previous, palette) {
     return pick(palette.filter(color=>color.toLowerCase()!==String(previous).toLowerCase()));
@@ -36,7 +39,7 @@
       } else {
         const word = style === 'color' ? pick(colors) + pick(colorEndings)
           : style === 'food' ? pick(tastes) + pick(foods) : pick(phrases);
-        result = '@' + word + (10 + pick(Array.from({length:90}, (_, i) => i)));
+        result = '@' + word + nameSuffix();
       }
     } while (result === previous);
     return result;
