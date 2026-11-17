@@ -269,17 +269,6 @@
   }
   function measure(root,state){
     root.querySelector('[data-thread-connectors]')?.remove();
-    const thread=root.querySelector('[data-reply-thread]'),parentAvatar=root.querySelector('.cs-native-avatar');
-    const childAvatars=thread?[...thread.querySelectorAll('[data-reply-avatar]')].filter(node=>node.getClientRects().length>0):[];
-    if(thread&&parentAvatar&&parentAvatar.getClientRects().length&&childAvatars.length){
-      const rr=root.getBoundingClientRect(),pr=parentAvatar.getBoundingClientRect(),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-      const width=root.clientWidth,height=Math.max(root.scrollHeight,root.clientHeight);svg.dataset.threadConnectors='';svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);svg.style.cssText=`position:absolute;inset:0;width:${width}px;height:${height}px;pointer-events:none;overflow:visible;z-index:1`;
-      const sx=pr.left-rr.left+pr.width/2,sy=pr.bottom-rr.top,targets=childAvatars.map(child=>{const r=child.getBoundingClientRect();return {x:r.left-rr.left,y:r.top-rr.top+r.height/2};});
-      const stroke=state.theme==='dark'?'#333':'#e5e5e5',trunk=document.createElementNS(svg.namespaceURI,'path'),lastTarget=targets[targets.length-1],lastRadius=Math.max(0,Math.min(16,lastTarget.x-sx));
-      trunk.setAttribute('d',`M ${sx} ${sy} V ${lastTarget.y-lastRadius}`);trunk.setAttribute('fill','none');trunk.setAttribute('stroke',stroke);trunk.setAttribute('stroke-width','1');svg.append(trunk);
-      for(const target of targets){const radius=Math.max(0,Math.min(16,target.x-sx)),path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',`M ${sx} ${target.y-radius} C ${sx} ${target.y-radius/2}, ${sx+radius/2} ${target.y}, ${sx+radius} ${target.y} H ${target.x}`);path.setAttribute('fill','none');path.setAttribute('stroke',stroke);path.setAttribute('stroke-width','1');svg.append(path);}
-      svg.dataset.layer='thread-connectors';if(state.visibility?.['thread-connectors']===false)svg.style.display='none';root.prepend(svg);
-    }
     const body=root.querySelector('[data-yt-body]');
     if(body){const limit=80*state.font/14;const long=body.scrollHeight>limit+.5;const toggle=root.querySelector('[data-yt-toggle]');toggle.hidden=!long;toggle.style.display=long?'block':'none';if(long&&state.youtubeMode!=='expanded'){Object.assign(body.style,{display:'-webkit-box',webkitBoxOrient:'vertical',webkitLineClamp:'4',overflow:'hidden',maxHeight:limit+'px'});}}
     for(const layer of root.querySelectorAll('[data-layer]'))if(state.visibility?.[layer.dataset.layer]===false)layer.style.display='none';
@@ -288,6 +277,19 @@
     const minH=Math.ceil(parseFloat(getComputedStyle(root).height));
     root.style.minHeight=Math.max(minH,state.height||0)+'px';
     root.style.display='flex';root.style.flexDirection='column';root.style.justifyContent='center';
+    // Centering, clamping and visibility change the final row positions. Draw
+    // the YouTube thread from those final boxes so its rail follows the replies.
+    const thread=root.querySelector('[data-reply-thread]'),parentAvatar=root.querySelector('.cs-native-avatar');
+    const childAvatars=thread?[...thread.querySelectorAll('[data-reply-avatar]')].filter(node=>node.getClientRects().length>0):[];
+    if(thread&&parentAvatar&&parentAvatar.getClientRects().length&&childAvatars.length){
+      const rr=root.getBoundingClientRect(),pr=parentAvatar.getBoundingClientRect(),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      const width=root.clientWidth,height=Math.max(root.scrollHeight,root.clientHeight),displayScale=rr.width/Math.max(1,width);svg.dataset.threadConnectors='';svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);svg.style.cssText=`position:absolute;inset:0;width:${width}px;height:${height}px;pointer-events:none;overflow:visible;z-index:1`;
+      const sx=(pr.left-rr.left+pr.width/2)/displayScale,sy=(pr.bottom-rr.top)/displayScale,targets=childAvatars.map(child=>{const r=child.getBoundingClientRect();return {x:(r.left-rr.left)/displayScale,y:(r.top-rr.top+r.height/2)/displayScale};});
+      const stroke=state.theme==='dark'?'#333':'#e5e5e5',trunk=document.createElementNS(svg.namespaceURI,'path'),lastTarget=targets[targets.length-1],lastRadius=Math.max(0,Math.min(16,lastTarget.x-sx));
+      trunk.setAttribute('d',`M ${sx} ${sy} V ${lastTarget.y-lastRadius}`);trunk.setAttribute('fill','none');trunk.setAttribute('stroke',stroke);trunk.setAttribute('stroke-width','1');svg.append(trunk);
+      for(const target of targets){const radius=Math.max(0,Math.min(16,target.x-sx)),path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',`M ${sx} ${target.y-radius} C ${sx} ${target.y-radius/2}, ${sx+radius/2} ${target.y}, ${sx+radius} ${target.y} H ${target.x}`);path.setAttribute('fill','none');path.setAttribute('stroke',stroke);path.setAttribute('stroke-width','1');svg.append(path);}
+      svg.dataset.layer='thread-connectors';if(state.visibility?.['thread-connectors']===false)svg.style.display='none';root.prepend(svg);
+    }
     const h=Math.ceil(parseFloat(getComputedStyle(root).height));
     if(h*2>32760||state.width*h*4>32000000){
       const error=new Error('이미지가 너무 큽니다. 너비·높이 또는 글자 크기를 줄여 주세요.');error.userMessage=error.message;throw error;

@@ -240,6 +240,8 @@
       syncCornerRadiusControls();applyCornerRadius();queueRender();persist();
     });
     find('[data-fit]').addEventListener('click',()=>resizer.fit());
+    find('[data-zoom-in]').addEventListener('click',()=>resizer.zoomIn());
+    find('[data-zoom-out]').addEventListener('click',()=>resizer.zoomOut());
     find('[data-auto-height]').addEventListener('click',()=>{state.height=0;find('[data-key="height"]').value='';render();persist();});
     async function render(){
       const version=++renderVersion;canvas.setAttribute("aria-busy","true");

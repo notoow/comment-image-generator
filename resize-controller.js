@@ -10,11 +10,21 @@
     };
   }
   function mount({frame,area,canvas,host,ghost,tooltip,getState,onStart,onChange,onRadiusChange=()=>{},onEnd,onError=()=>{}}){
-    let metrics={w:getState().width,h:200},scale=1,drag=null,raf=0,lastMove=null;
-    function fit(){
+    let metrics={w:getState().width,h:200},scale=1,fitScale=1,zoom=1,drag=null,raf=0,lastMove=null;
+    function calculateFit(){
       const widthScale=(area.clientWidth-16)/Math.max(960,metrics.w);
       const heightScale=area.clientHeight>32?(area.clientHeight-16)/Math.max(1,metrics.h):1;
-      scale=Math.max(.05,Math.min(1,widthScale,heightScale));layout();
+      fitScale=Math.max(.05,Math.min(1,widthScale,heightScale));
+    }
+    function updateZoomLabel(){
+      const output=area.closest('.cs-preview')?.querySelector('[data-zoom-level]');
+      if(output)output.textContent=`${Math.round(zoom*100)}%`;
+    }
+    function fit(){
+      zoom=1;calculateFit();scale=fitScale;layout();updateZoomLabel();
+    }
+    function applyZoom(next){
+      zoom=Math.max(.25,Math.min(3,Math.round(next*100)/100));calculateFit();scale=Math.max(.05,Math.min(3,fitScale*zoom));layout();updateZoomLabel();
     }
     function layout(){
       frame.style.width=metrics.w*scale+'px';frame.style.height=metrics.h*scale+'px';
@@ -29,7 +39,8 @@
     }
     function update(size,{live=false}={}){
       metrics=size;frame.style.transform='';frame.dataset.resizing='false';
-      host.hidden=!live;if(!live)host.replaceChildren();canvas.hidden=live;fit();
+      host.hidden=!live;if(!live)host.replaceChildren();canvas.hidden=live;
+      calculateFit();scale=Math.max(.05,Math.min(3,fitScale*zoom));layout();updateZoomLabel();
     }
     function apply(){
       raf=0;if(!drag||!lastMove)return;
@@ -113,10 +124,10 @@
     new ResizeObserver(()=>{
       if(area.clientWidth!==availableWidth||area.clientHeight!==availableHeight){
         availableWidth=area.clientWidth;availableHeight=area.clientHeight;
-        if(!drag)fit();
+        if(!drag){calculateFit();scale=Math.max(.05,Math.min(3,fitScale*zoom));layout();updateZoomLabel();}
       }
     }).observe(area);
-    return {update,fit};
+    return {update,fit,zoomIn(){applyZoom(zoom+.1);},zoomOut(){applyZoom(zoom-.1);}};
   }
   globalThis.CommentResize={mount,dimensions};
 })();
